@@ -1,0 +1,36 @@
+{
+    "name": "buonaparte/bnp-service-definition",
+    "description": "This module provides an alternative service factories definition, through configuration",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "zf2"
+    ],
+    "authors": [
+        {
+            "name": "Denis Mostovoi",
+            "email": "buonaparte89@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zend-loader": "2.*",
+        "zendframework/zend-modulemanager": "2.*",
+        "zendframework/zend-mvc": "2.*",
+        "zendframework/zend-servicemanager": "2.*",
+        "zendframework/zend-stdlib": "2.*",
+        "zendframework/zend-config": "2.*",
+        "symfony/expression-language": "dev-master"
+    },
+    "require-dev" : {
+        "phpunit/phpunit" : ">=3.7,<4",
+        "squizlabs/php_codesniffer" : "1.4.*",
+        "satooshi/php-coveralls": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "BnpServiceDefinition": "src/"
+        }
+    }
+}
