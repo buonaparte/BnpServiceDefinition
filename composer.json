@@ -21,6 +21,7 @@
         "zendframework/zend-servicemanager": "2.*",
         "zendframework/zend-stdlib": "2.*",
         "zendframework/zend-config": "2.*",
+        "zendframework/zend-code": "2.*",
         "symfony/expression-language": "dev-master"
     },
     "require-dev" : {

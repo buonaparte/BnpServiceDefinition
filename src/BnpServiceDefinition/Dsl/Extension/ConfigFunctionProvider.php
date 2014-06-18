@@ -45,6 +45,10 @@ class ConfigFunctionProvider implements FunctionProviderInterface
     {
         $self = $this;
         return function ($args, $config, $silent = true, $type = null) use ($self) {
+            if (! is_string($config)) {
+                return $config;
+            }
+
             return $self->getConfigValue($config, $silent, $type);
         };
     }
@@ -52,12 +56,16 @@ class ConfigFunctionProvider implements FunctionProviderInterface
     public function getCompiler()
     {
         return function ($config, $silent = true, $type = null) {
+            if (! is_string($config)) {
+                return $config;
+            }
+
             $silent = $silent ? 'true' : 'false';
             $type = null !== $type ? $type : 'null';
             return <<<CONFIG
-\$this->services->get('{$this->serviceName}')->getConfigValue($config, $silent, $type);
+\$this->services->get('{$this->serviceName}')->getConfigValue($config, $silent, $type)
 CONFIG;
-};
+        };
     }
 
     protected function getConfig()

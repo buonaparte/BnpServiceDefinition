@@ -14,6 +14,21 @@ class DefinitionOptions extends AbstractOptions
     protected $configPathSeparator = ':';
 
     /**
+     * @var array
+     */
+    protected $definitionAwareContainers;
+
+    /**
+     * @var string
+     */
+    protected $dumpDirectory;
+
+    /**
+     * @var string
+     */
+    protected $dumpedAbstractFactoriesNamespace;
+
+    /**
      * @param string $configPathSeparator
      */
     public function setConfigPathSeparator($configPathSeparator)
@@ -27,5 +42,53 @@ class DefinitionOptions extends AbstractOptions
     public function getConfigPathSeparator()
     {
         return $this->configPathSeparator;
+    }
+
+    /**
+     * @param array $definitionAwareContainers
+     */
+    public function setDefinitionAwareContainers($definitionAwareContainers)
+    {
+        $this->definitionAwareContainers = $definitionAwareContainers;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefinitionAwareContainers()
+    {
+        return $this->definitionAwareContainers;
+    }
+
+    /**
+     * @param string $dumpDirectory
+     */
+    public function setDumpDirectory($dumpDirectory)
+    {
+        $this->dumpDirectory = $dumpDirectory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDumpDirectory()
+    {
+        return $this->dumpDirectory;
+    }
+
+    /**
+     * @param string $dumpedAbstractFactoriesNamespace
+     */
+    public function setDumpedAbstractFactoriesNamespace($dumpedAbstractFactoriesNamespace)
+    {
+        $this->dumpedAbstractFactoriesNamespace = $dumpedAbstractFactoriesNamespace;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDumpedAbstractFactoriesNamespace()
+    {
+        return $this->dumpedAbstractFactoriesNamespace;
     }
 }

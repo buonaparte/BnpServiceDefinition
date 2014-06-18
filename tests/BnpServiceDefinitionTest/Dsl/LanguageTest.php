@@ -87,7 +87,7 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \RuntimeException
      */
-    public function testEvaluationWithNestedConifg()
+    public function testEvaluationWithNestedConfig()
     {
         $this->overrideConfig(array(
             'key1' => array(
