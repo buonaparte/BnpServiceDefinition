@@ -4,6 +4,8 @@ namespace BnpServiceDefinition\Factory;
 
 use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Options\DefinitionOptions;
+use BnpServiceDefinition\Service\DefinitionAbstractFactoryDumper;
+use BnpServiceDefinition\Service\Generator;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -31,15 +33,9 @@ class DefinitionAbstractFactory implements
     protected $services;
 
     /**
-     * @var string
+     * @var bool
      */
-    protected $dumpedFactoryFilename;
-
-    public function __construct(DefinitionRepository $repository = null, $scopeName = null)
-    {
-        $this->definitionRepository = $repository;
-        $this->scopeName = $scopeName;
-    }
+    protected $generatedFactoryAttached = false;
 
     /**
      * @var DefinitionOptions
@@ -51,7 +47,13 @@ class DefinitionAbstractFactory implements
      */
     protected $config;
 
-    protected function getDumpedFactoryName()
+    public function __construct(DefinitionRepository $repository = null, $scopeName = null)
+    {
+        $this->definitionRepository = $repository;
+        $this->scopeName = $scopeName;
+    }
+
+    protected function getGeneratedFactory()
     {
         if (null === $this->definitionRepository) {
             return null;
@@ -62,12 +64,19 @@ class DefinitionAbstractFactory implements
             throw new \RuntimeException();
         }
 
-        return rtrim($dir, '/')
+        $factory = new \stdClass();
+        $factory->filename = rtrim($dir, '/')
             . sprintf('/%s.php',
                 null !== $this->scopeName
                     ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
                     : $this->definitionRepository->getChecksum()
             );
+        $factory->class = sprintf('BnpGeneratedAbstractFactory_%s', $this->definitionRepository->getChecksum());
+        if (null !== $this->options->getDumpedAbstractFactoriesNamespace()) {
+            $factory->class = rtrim($this->options->getDumpedAbstractFactoriesNamespace(), '\\') . $factory->class;
+        }
+
+        return $factory;
     }
 
     /**
@@ -80,13 +89,20 @@ class DefinitionAbstractFactory implements
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        $filename = $this->getDumpedAbstractFactoryName();
-        if (file_exists($filename) && is_readable($filename)) {
-            /** @var $services ServiceManager */
-            $services = $this->getServiceLocator();
-            $services->addAbstractFactory()
+        if ($this->generatedFactoryAttached) {
+            return false;
         }
-        return $this->definitionRepository->hasDefinition($requestedName);
+
+        $factory = $this->getGeneratedFactory();
+        if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
+            $this->getFactoryGenerator()->getGenerator($this->definitionRepository, $factory->filename)->generate();
+        }
+
+        require_once $factory->filename;
+        /** @var $serviceLocator ServiceManager */
+        $serviceLocator->addAbstractFactory($factory->class);
+
+        return false;
     }
 
     protected function getOptions(ServiceLocatorInterface $serviceLocator)
@@ -117,7 +133,7 @@ class DefinitionAbstractFactory implements
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        $parser = new Parser();
+        return null;
     }
 
     /**
@@ -175,5 +191,13 @@ class DefinitionAbstractFactory implements
         }
 
         $this->definitionRepository = new DefinitionRepository($this->getDefinitionsConfig('service_manager'));
+    }
+
+    /**
+     * @return Generator
+     */
+    protected function getFactoryGenerator()
+    {
+        return $this->getServiceLocator()->get('BnpServiceDefinition\Service\Generator');
     }
 }

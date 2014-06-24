@@ -2,6 +2,8 @@
 
 namespace BnpServiceDefinition\Definition;
 
+use Zend\Stdlib\Hydrator\ClassMethods;
+
 class MethodDefinition
 {
     /**
@@ -24,6 +26,21 @@ class MethodDefinition
         $this->setName($name);
         $this->setParams($params);
         $this->setCondition($condition);
+    }
+
+    /**
+     * @param array $specs
+     * @return MethodDefinition
+     * @throws \RuntimeException
+     */
+    public static function fromArray(array $specs)
+    {
+        if (! isset($specs['name'])) {
+            throw new \RuntimeException('MethodDefinition expects at least a method name, under "name" key');
+        }
+
+        $hydrator = new ClassMethods();
+        return $hydrator->hydrate($specs, new static(isset($specs['name']) ? $specs['name'] : null));
     }
 
     /**

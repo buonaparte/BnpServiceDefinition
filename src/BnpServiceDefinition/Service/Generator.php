@@ -10,10 +10,11 @@ use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\ReferenceResolver;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
+use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\PropertyGenerator;
 
-class DefinitionAbstractFactoryDumper
+class Generator
 {
     /**
      * @var DefinitionOptions
@@ -37,14 +38,22 @@ class DefinitionAbstractFactoryDumper
         $this->language = $language;
     }
 
-    public function dump(DefinitionRepository $repository, $file = null)
+    public function getGenerator(DefinitionRepository $repository, $filename = null)
     {
-        $data = $this->generateAbstractFactoryClass($repository);
-        if (null !== $file) {
-            file_put_contents($file, $data);
+        $classFile = new FileGenerator();
+        $classFile
+            ->setUse('Zend\ServiceManager\ServiceLocatorInterface')
+            ->setClass($this->generateAbstractFactoryClass($repository));
+
+        if (null !== $this->options->getDumpedAbstractFactoriesNamespace()) {
+            $classFile->setNamespace($this->options->getDumpedAbstractFactoriesNamespace());
         }
 
-        return $data;
+        if (null !== $filename) {
+            $classFile->setFilename($filename);
+        }
+
+        return $classFile;
     }
 
     protected function generateAbstractFactoryClass(DefinitionRepository $repository)
@@ -52,6 +61,9 @@ class DefinitionAbstractFactoryDumper
         return ClassGenerator::fromArray(array(
             'name' => sprintf('BnpGeneratedAbstractFactory_%s', $repository->getChecksum()),
             'namespace' => $this->options->getDumpedAbstractFactoriesNamespace(),
+            'implemented_interfaces' => array(
+                array('name' => 'Zend\ServiceManager\AbstractFactoryInterface')
+            ),
             'properties' => array(
                 PropertyGenerator::fromArray(array(
                     'name' => 'services',

@@ -14,17 +14,17 @@ class ClassDefinition
     /**
      * @var array
      */
-    protected $arguments;
+    protected $arguments = array();
 
     /**
      * @var array
      */
-    protected $methodCalls;
+    protected $methodCalls = array();
 
     /**
      * @var boolean
      */
-    protected $abstract;
+    protected $abstract = false;
 
     /**
      * @var string
@@ -64,11 +64,7 @@ class ClassDefinition
     {
         $this->methodCalls = array();
         foreach ($methodCalls as $method) {
-            if (is_array($method)) {
-                $this->addMethodCall(array_shift($method), array_shift($method));
-            } else {
-                $this->addMethodCall($method);
-            }
+            $this->addMethodCall($method);
         }
     }
 
@@ -80,18 +76,21 @@ class ClassDefinition
         return $this->methodCalls;
     }
 
-    public function addMethodCall($method, $arguments = array())
+    public function addMethodCall($method)
     {
         if ($method instanceof MethodDefinition) {
             $this->methodCalls[] = $method;
             return $this;
         }
 
-        if (empty($method)) {
-            throw new \RuntimeException('Method name cannot be empty');
+        if (empty($method) || ! is_string($method) && ! is_array($method)) {
+            throw new \RuntimeException(sprintf(
+                'Method name cannot be empty, must be a method name, or a method call array specs, %s provided',
+                gettype($method)
+            ));
         }
 
-        $this->methodCalls[] = new MethodDefinition($method, $arguments);
+        $this->methodCalls[] = is_string($method) ? new MethodDefinition($method) : MethodDefinition::fromArray($method);
         return $this;
     }
 
