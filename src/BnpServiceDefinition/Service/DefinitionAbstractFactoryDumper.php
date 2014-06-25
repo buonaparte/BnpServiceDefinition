@@ -7,7 +7,7 @@ use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodDefinition;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
-use BnpServiceDefinition\Reference\ReferenceResolver;
+use BnpServiceDefinition\Service\ReferenceResolver;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\MethodGenerator;
@@ -21,7 +21,7 @@ class DefinitionAbstractFactoryDumper
     protected $options;
 
     /**
-     * @var \BnpServiceDefinition\Reference\ReferenceResolver
+     * @var \BnpServiceDefinition\Service\ReferenceResolver
      */
     protected $referenceResolver;
 

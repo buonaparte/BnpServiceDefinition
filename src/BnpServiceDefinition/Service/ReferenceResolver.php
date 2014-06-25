@@ -1,29 +1,40 @@
 <?php
 
-namespace BnpServiceDefinition\Reference;
+namespace BnpServiceDefinition\Service;
 
+use BnpServiceDefinition\Reference\ReferenceInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\Exception;
 
 class ReferenceResolver extends AbstractPluginManager
 {
+    /**
+     * @var string
+     */
+    protected $defaultResolvedType = 'value';
+
     public function __construct(ConfigInterface $configuration = null)
     {
         parent::__construct($configuration);
 
-        $this->setAlias(ValueReference::getType(), 'BnpServiceDefinition\Reference\ValueReference');
-        $this->setAlias(ConfigReference::getType(), 'BnpServiceDefinition\Reference\ConfigReference');
-        $this->setAlias(ServiceReference::getType(), 'BnpServiceDefinition\Reference\ServiceReference');
+        $plugins = array(
+            'BnpServiceDefinition\Reference\ValueReference',
+            'BnpServiceDefinition\Reference\ConfigReference',
+            'BnpServiceDefinition\Reference\ServiceReference'
+        );
+
+        foreach ($plugins as $plugin) {
+            $this->setInvokableClass($plugin, $plugin);
+            $this->setAlias(call_user_func(array($plugin, 'getType')), $plugin);
+        }
     }
 
     public function resolveReference($parameter)
     {
         if (is_string($parameter)) {
-            $parameter = array('type' => 'value', 'value' => $parameter);
-        }
-
-        if (! is_array($parameter) || empty($parameter['type']) || ! array_key_exists('value', $parameter)) {
+            $parameter = array('type' => $this->defaultResolvedType, 'value' => $parameter);
+        } elseif (! is_array($parameter) || empty($parameter['type']) || ! array_key_exists('value', $parameter)) {
             throw new \RuntimeException();
         }
 
@@ -35,6 +46,27 @@ class ReferenceResolver extends AbstractPluginManager
     public function resolveReferences(array $parameters = array())
     {
         return array_map(array($this, 'resolveReference'), $parameters);
+    }
+
+    /**
+     * @param string $defaultResolvedType
+     * @throws Exception\RuntimeException
+     */
+    public function setDefaultResolvedType($defaultResolvedType)
+    {
+        if (! $this->has($defaultResolvedType)) {
+            throw new Exception\RuntimeException(sprintf('undefined type (unknown plugin) %s', $defaultResolvedType));
+        }
+
+        $this->defaultResolvedType = $defaultResolvedType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultResolvedType()
+    {
+        return $this->defaultResolvedType;
     }
 
     /**
