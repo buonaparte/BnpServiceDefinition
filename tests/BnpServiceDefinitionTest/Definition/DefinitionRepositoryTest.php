@@ -4,6 +4,7 @@ namespace BnpServiceDefinitionTest\Definition;
 
 use BnpServiceDefinition\Definition\ClassDefinition;
 use BnpServiceDefinition\Definition\DefinitionRepository;
+use BnpServiceDefinition\Definition\MethodDefinition;
 
 class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -122,12 +123,115 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
         ));
 
         $second = $repo->getServiceDefinition('second');
-        $this->assertInternalType('array');
-        $this->assertEquals(array('first', 'second'), $second->getArguments());
-
         $fourth = $repo->getServiceDefinition('fourth');
-        $this->assertEquals('SomeClass', $fourth->getClass());
-        $this->assertEquals(array('second'), array_values($fourth->getArguments()));
+
+        $secondMethodCalls = $second->getMethodCalls();
+        $fourthMethodCalls = $fourth->getMethodCalls();
+
+        $this->assertCount(1, $secondMethodCalls);
+        $this->assertCount(3, $fourthMethodCalls);
+
+        /** @var $secondMethodFirst MethodDefinition */
+        $secondMethodFirst = $secondMethodCalls[0];
+        /** @var $fourthMethodFirst MethodDefinition */
+        $fourthMethodFirst = $fourthMethodCalls[0];
+        /** @var $fourthMethodSecond MethodDefinition */
+        $fourthMethodSecond = $fourthMethodCalls[1];
+        /** @var $fourthMethodThird MethodDefinition */
+        $fourthMethodThird = $fourthMethodCalls[2];
+
+        $this->assertEquals('firstMethod', $secondMethodFirst->getName());
+        $this->assertEquals(array('firstParam'), $secondMethodFirst->getParams());
+
+        $this->assertEquals('firstMethod', $fourthMethodFirst->getName());
+        $this->assertEquals(array('secondParameter', 'thirdParameter'), array_values($fourthMethodFirst->getParams()));
+
+        $this->assertEquals('secondMethod', $fourthMethodSecond->getName());
+        $this->assertEquals(
+            array('firstParameter', 'secondParameter', 'thirdParameter'),
+            array_values($fourthMethodSecond->getParams())
+        );
+
+        $this->assertEquals('thirdMethod', $fourthMethodThird->getName());
+        $this->assertEmpty($fourthMethodThird->getParams());
+    }
+
+    public function testCanMergeMethodCallConditionWithParent()
+    {
+        $repo = new DefinitionRepository(array(
+            'first' => array(
+                'class' => 'SomeClass',
+                'method_calls' => array(
+                    'firstMethod'
+                )
+            ),
+            'second' => array(
+                'parent' => 'first',
+                'method_calls' => array(
+                    array(
+                        'name' => 'firstMethod',
+                        'condition' => 'somethingIsTrue'
+                    )
+                )
+            ),
+            'third' => array(
+                'class' => 'SomeClass',
+                'method_calls' => array(
+                    array(
+                        'name' => 'firstMethod',
+                        'condition' => array('#1' => 'somethingIsTrue')
+                    ),
+                    array(
+                        'name' => 'secondMethod',
+                        'condition' => array('somethingIsTrue', 'somethingIsFalse')
+                    )
+                )
+            ),
+            'fourth' => array(
+                'parent' => 'third',
+                'method_calls' => array(
+                    array(
+                        'name' => 'firstMethod',
+                        'condition' => array('#1' => 'somethingIsFalse', '#2' => 'somethingIsFalse')
+                    ),
+                    array(
+                        'name' => 'secondMethod',
+                        'condition' => array('unknown')
+                    )
+                )
+            )
+        ));
+
+        $second = $repo->getServiceDefinition('second');
+        $fourth = $repo->getServiceDefinition('fourth');
+
+        $secondMethodCalls = $second->getMethodCalls();
+        $fourthMethodCalls = $fourth->getMethodCalls();
+
+        $this->assertCount(1, $secondMethodCalls);
+        $this->assertCount(2, $fourthMethodCalls);
+
+        /** @var $secondMethodFirst MethodDefinition */
+        $secondMethodFirst = $secondMethodCalls[0];
+        /** @var $fourthMethodFirst MethodDefinition */
+        $fourthMethodFirst = $fourthMethodCalls[0];
+        /** @var $fourthMethodSecond MethodDefinition */
+        $fourthMethodSecond = $fourthMethodCalls[1];
+
+        $this->assertEquals('firstMethod', $secondMethodFirst->getName());
+        $this->assertEquals(array('somethingIsTrue'), $secondMethodFirst->getCondition());
+
+        $this->assertEquals('firstMethod', $fourthMethodFirst->getName());
+        $this->assertEquals(
+            array('somethingIsFalse', 'somethingIsFalse'),
+            array_values($fourthMethodFirst->getCondition())
+        );
+
+        $this->assertEquals('secondMethod', $fourthMethodSecond->getName());
+        $this->assertEquals(
+            array('somethingIsTrue', 'somethingIsFalse', 'unknown'),
+            $fourthMethodSecond->getCondition()
+        );
     }
 
     /**

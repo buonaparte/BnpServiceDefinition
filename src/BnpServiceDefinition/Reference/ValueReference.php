@@ -2,6 +2,7 @@
 
 namespace BnpServiceDefinition\Reference;
 
+use BnpServiceDefinition\Dsl\LanguageUtils;
 use Zend\Stdlib\ArrayUtils;
 
 class ValueReference implements ReferenceInterface
@@ -23,10 +24,20 @@ class ValueReference implements ReferenceInterface
     {
         switch (gettype($definition)) {
             case 'string':
+                $definition = LanguageUtils::escapeSingleQuotedString($definition);
                 return "'$definition'";
 
             case 'int':
+            case 'integer':
+                return $definition;
+
             case 'float':
+            case 'double':
+                $definition = (string) $definition;
+                if (false === strpos($definition, '.')) {
+                    $definition .= '.0';
+                }
+
                 return $definition;
 
             case 'array':
@@ -37,7 +48,11 @@ class ValueReference implements ReferenceInterface
                     return '{'
                         . implode(', ', array_map(
                             function ($key) use ($self, $definition) {
-                                return "'$key': {$self->compile($definition[$key])}";
+                                return sprintf(
+                                    "'%s': %s",
+                                    LanguageUtils::escapeSingleQuotedString($key),
+                                    $self->compile($definition[$key])
+                                );
                             },
                             array_keys($definition)))
                         . '}';
@@ -49,6 +64,10 @@ class ValueReference implements ReferenceInterface
                         ))
                         . ']';
                 }
+
+            case 'bool':
+            case 'boolean':
+                return $definition ? 'true' : 'false';
         }
 
         throw new Exception\InvalidArgumentException(sprintf(

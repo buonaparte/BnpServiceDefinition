@@ -7,7 +7,7 @@ use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodDefinition;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
-use BnpServiceDefinition\ReferenceResolver;
+use BnpServiceDefinition\Reference\ReferenceResolver;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\FileGenerator;
@@ -22,7 +22,7 @@ class Generator
     protected $options;
 
     /**
-     * @var ReferenceResolver
+     * @var \BnpServiceDefinition\Reference\ReferenceResolver
      */
     protected $referenceResolver;
 

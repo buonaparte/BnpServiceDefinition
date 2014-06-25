@@ -1,0 +1,46 @@
+<?php
+
+namespace BnpServiceDefinitionTest\Definition;
+
+use BnpServiceDefinition\Reference\ServiceReference;
+
+class ServiceReferenceTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @var ServiceReference
+     */
+    protected $serviceReference;
+
+    protected function setUp()
+    {
+        $this->serviceReference = new ServiceReference();
+    }
+
+    public function testCompileCorrectProvidedString()
+    {
+        $definition = 'some_service';
+        $unQuotedDefinition = "someone's_service";
+
+        $this->assertEquals("service('some_service')", $this->serviceReference->compile($definition));
+        $this->assertEquals("service('someone\\'s_service')", $this->serviceReference->compile($unQuotedDefinition));
+    }
+
+    public function testWillThrowExceptionOnUnsupportedDefinition()
+    {
+        $definitions = array(1, 0.9, array('something'), new \stdClass());
+        $exceptions = array();
+
+        foreach ($definitions as $unSupportedDefinition) {
+            try {
+                $this->serviceReference->compile($unSupportedDefinition);
+            } catch (\Exception $e) {
+                $exceptions[] = $e;
+            }
+        }
+
+        $this->assertEquals(count($definitions), count($exceptions));
+        foreach ($exceptions as $e) {
+            $this->assertInstanceOf('BnpServiceDefinition\Reference\Exception\InvalidArgumentException', $e);
+        }
+    }
+}
