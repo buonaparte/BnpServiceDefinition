@@ -32,9 +32,11 @@ class ReferenceResolver extends AbstractPluginManager
 
     public function resolveReference($parameter)
     {
-        if (is_string($parameter)) {
+        if (! is_array($parameter)) {
             $parameter = array('type' => $this->defaultResolvedType, 'value' => $parameter);
-        } elseif (! is_array($parameter) || empty($parameter['type']) || ! array_key_exists('value', $parameter)) {
+        }
+
+        if (! is_array($parameter) || empty($parameter['type']) || ! array_key_exists('value', $parameter)) {
             throw new \RuntimeException();
         }
 

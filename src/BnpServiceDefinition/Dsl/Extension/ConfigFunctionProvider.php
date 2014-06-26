@@ -45,10 +45,6 @@ class ConfigFunctionProvider implements FunctionProviderInterface
     {
         $self = $this;
         return function ($args, $config, $silent = true, $type = null) use ($self) {
-            if (! is_string($config)) {
-                return $config;
-            }
-
             return $self->getConfigValue($config, $silent, $type);
         };
     }
@@ -56,12 +52,14 @@ class ConfigFunctionProvider implements FunctionProviderInterface
     public function getCompiler()
     {
         return function ($config, $silent = true, $type = null) {
-            if (! is_string($config)) {
-                return $config;
+            if ('false' === $silent) {
+                $silent = false;
+            }
+            $silent = $silent ? 'true' : 'false';
+            if (! $type) {
+                $type = 'null';
             }
 
-            $silent = $silent ? 'true' : 'false';
-            $type = null !== $type ? $type : 'null';
             return <<<CONFIG
 \$this->services->get('{$this->serviceName}')->getConfigValue($config, $silent, $type)
 CONFIG;
@@ -112,6 +110,32 @@ CONFIG;
 
     public function getConfigValue($config, $silent = true, $type = null)
     {
-        return $this->getConfigNode($this->getConfigPath($config), $silent, $type);
+        if ($config instanceof \Traversable) {
+            $config = ArrayUtils::iteratorToArray($config);
+        }
+
+        if (is_array($config)) {
+            if (empty($config)) {
+                throw new \InvalidArgumentException('config cannot be an empty array');
+            }
+
+            $self = $this;
+            array_walk($config, function ($part, $idx) use ($self) {
+                if (! is_string($part)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'config can only contain strings as array path elements, %s received at index %d',
+                        gettype($part),
+                        $idx
+                    ));
+                }
+            });
+        } elseif (! is_string($config)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Config can only be a path string or array, %s provided',
+                gettype($config)
+            ));
+        }
+
+        return $this->getConfigNode(is_string($config) ? $this->getConfigPath($config) : $config, $silent, $type);
     }
 }

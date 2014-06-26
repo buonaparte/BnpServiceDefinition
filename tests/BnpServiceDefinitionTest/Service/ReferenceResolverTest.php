@@ -60,13 +60,13 @@ class ReferenceResolverTest extends \PHPUnit_Framework_TestCase
     public function testCanChangeFallbackReferenceType()
     {
         $this->resolver->setDefaultResolvedType('value');
-        $this->assertTrue('1', $this->resolver->resolveReference(1));
+        $this->assertEquals('1', $this->resolver->resolveReference(1));
 
         $this->resolver->setDefaultResolvedType('config');
-        $this->assertTrue("config('some_config')", $this->resolver->resolveReference('some_config'));
+        $this->assertEquals("config('some_config')", $this->resolver->resolveReference('some_config'));
 
         $this->resolver->setDefaultResolvedType('service');
-        $this->assertTrue("service('some_service')", $this->resolver->resolveReference('some_service'));
+        $this->assertEquals("service('some_service')", $this->resolver->resolveReference('some_service'));
     }
 
     public function testCanRegisterAndUseAdditionalReferenceTypePlugins()

@@ -33,24 +33,32 @@ class ServiceFunctionProvider implements FunctionProviderInterface
     public function getEvaluator(array $context = array())
     {
         $self = $this;
-        return function ($args, $service) use ($self) {
+        return function ($args, $service, $silent = false, $instance = null) use ($self) {
             if (! is_string($service)) {
                 return $service;
             }
 
-            return $self->getService($service);
+            return $self->getService($service, $silent, $instance);
         };
     }
 
     public function getCompiler()
     {
-        return function ($service) {
+        return function ($service, $silent = false, $instance = null) {
             if (! is_string($service)) {
                 return $service;
             }
 
+            if ('false' === $silent) {
+                $silent = false;
+            }
+            $silent = $silent ? 'true' : 'false';
+            if (! $instance) {
+                $instance = 'null';
+            }
+
             return <<<SERVICE
-\$this->services->get('{$this->serviceName}')->getService($service)
+\$this->services->get('{$this->serviceName}')->getService($service, $silent, $instance)
 SERVICE;
         };
     }
@@ -70,7 +78,7 @@ SERVICE;
             }
         }
 
-        if (null !== $instance and ! is_object($service) || ! $service instanceof $instance) {
+        if (null !== $service && null !== $instance and ! is_object($service) || ! $service instanceof $instance) {
             throw new \RuntimeException();
         }
 
