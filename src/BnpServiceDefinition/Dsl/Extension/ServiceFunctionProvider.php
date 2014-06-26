@@ -55,11 +55,17 @@ class ServiceFunctionProvider implements FunctionProviderInterface
             $silent = $silent ? 'true' : 'false';
             if (! $instance) {
                 $instance = 'null';
+            } elseif ('\\' !== substr($instance, 1, 1)) {
+                $instance = $instance[0] . '\\' . substr($instance, 1);
             }
 
-            return <<<SERVICE
-\$this->services->get('{$this->serviceName}')->getService($service, $silent, $instance)
-SERVICE;
+            return sprintf(
+                '$this->services->get(\'%s\')->getService(%s, %s, %s)',
+                $this->serviceName,
+                $service,
+                $silent,
+                $instance
+            );
         };
     }
 

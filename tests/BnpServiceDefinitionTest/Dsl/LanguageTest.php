@@ -21,11 +21,6 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
      */
     protected $language;
 
-    /**
-     * @var DefinitionOptions
-     */
-    protected $definitionOptions;
-
     protected function setUp()
     {
         $this->services = new ServiceManager(new Config(array(
@@ -35,77 +30,69 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
             ),
         )));
 
-        $definitions = $this->definitionOptions = new DefinitionOptions(array());
-        $this->services->setFactory(
-            'ConfigFunctionProvider',
-            function (ServiceLocatorInterface $services) use ($definitions) {
-                return new ConfigFunctionProvider('ConfigFunctionProvider', $definitions, $services);
-            });
-
-
         $this->language = new Language();
-        $this->language->registerExtension('ConfigFunctionProvider');
         $this->language->setServiceManager($this->services);
     }
 
-    protected function overrideConfig(array $config = array())
+    public function testExtensionsGetRegisteredBeforeFirstEvaluateCall()
     {
-        $allowOverride = $this->services->getAllowOverride();
+        $first = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $second = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
 
-        $this->services->setAllowOverride(true);
-        $this->services->setService('Config', $config);
+        $first->expects($this->once())
+            ->method('getContextVariables')
+            ->will($this->returnValue(array()));
 
-        $this->services->setAllowOverride($allowOverride);
+        $second->expects($this->exactly(0))
+            ->method('getContextVariables');
+
+        $this->language->registerExtension($first);
+
+        $this->language->evaluate('true');
+
+        $this->language->registerExtension($second);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testEvaluationWithoutConfig()
+    public function testExtensionsGetRegisteredBeforeFirstCompileCall()
     {
-        $this->assertNull($this->language->evaluate('config("not_existing_key")'));
-        $this->assertNull($this->language->evaluate('config("not_existing_key", true)'));
-        $this->assertNull($this->language->evaluate('config("not_existing_key", true, "array")'));
+        $first = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface');
+        $second = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface');
 
-        $this->language->evaluate('config("not_existing_key", false)');
+        $first->expects($this->atLeastOnce())
+            ->method('getName')
+            ->will($this->returnValue('some_function'));
+        $first->expects($this->atLeastOnce())
+            ->method('getEvaluator')
+            ->will($this->returnValue(function () {}));
+        $first->expects($this->atLeastOnce())
+            ->method('getCompiler')
+            ->will($this->returnValue(function () { return ''; }));
+
+        $second->expects($this->exactly(0))
+            ->method('getName')
+            ->will($this->returnValue('some_other_function'));
+        $second->expects($this->exactly(0))
+            ->method('getEvaluator')
+            ->will($this->returnValue(function () {}));
+        $second->expects($this->exactly(0))
+            ->method('getCompiler')
+            ->will($this->returnValue(function () { return ''; }));
+
+        $this->language->registerExtension($first);
+
+        $this->language->compile('true');
+
+        $this->language->registerExtension($second);
     }
 
-    public function testEvaluationWithBasicConfig()
+    public function testSilentPassesInvalidExtensions()
     {
-        $this->overrideConfig(array(
-            'key1' => array('key2' => 'value1')
-        ));
+        $this->language->registerExtension(1);
+        $this->language->registerExtension(2.1);
+        $this->language->registerExtension(array('something'));
+        $this->language->registerExtension(new \stdClass());
+        $this->language->registerExtension('not_existing_service_extension');
 
-        $this->assertNotNull($this->language->evaluate('config("key1")'));
-        $this->assertInternalType('array', $this->language->evaluate('config("key1")'));
-        $this->assertArrayHasKey('key2', $this->language->evaluate('config("key1")'));
-
-        $config = $this->language->evaluate('config("key1")');
-        $this->assertEquals('value1', $config['key2']);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testEvaluationWithNestedConfig()
-    {
-        $this->overrideConfig(array(
-            'key1' => array(
-                'key2' => array(
-                    'key3' => 'value'
-                )
-            )
-        ));
-
-        $this->assertNotNull($this->language->evaluate('config("key1")'));
-
-        $this->assertNull($this->language->evaluate('config("key1:key3")'));
-        $this->assertNull($this->language->evaluate('config("key1.key3")'));
-
-        $this->assertInternalType('array', $this->language->evaluate('config("key1:key2")'));
-        $this->assertEquals('value', $this->language->evaluate('config("key1:key2:key3")'));
-        $this->assertEquals('value', $this->language->evaluate('config("key1:key2:key3", false, "string")'));
-
-        $this->assertEquals('value', $this->language->evaluate('config("key1:key2:key3", false, "int")'));
+        $this->language->evaluate('true');
     }
 }
