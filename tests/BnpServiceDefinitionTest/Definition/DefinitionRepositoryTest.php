@@ -234,6 +234,57 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetTerminableDefinitionsWillOnlyReturnNotAbstractClassDefinitions()
+    {
+        $repo = new DefinitionRepository(array(
+            'first' => array(
+                'class' => 'some_class',
+                'abstract' => true
+            ),
+            'second' => array(
+                'parent' => 'first',
+                'arguments' => array('firstArg'),
+                'abstract' => true
+            ),
+            'third' => array(
+                'parent' => 'second'
+            ),
+            'fourth' => array(
+                'parent' => 'second',
+                'arguments' => array('secondArg')
+            )
+        ));
+
+        $this->assertInternalType('array', $repo->getTerminableDefinitions());
+        $this->assertCount(2, $repo->getTerminableDefinitions());
+        $this->assertEquals(array('third', 'fourth'), array_keys($repo->getTerminableDefinitions()));
+    }
+
+    public function testRepositoryAggregatesTerminableDefinitionsIterator()
+    {
+        $repo = new DefinitionRepository(array(
+            'first' => array(
+                'class' => 'some_class',
+                'abstract' => true
+            ),
+            'second' => array(
+                'parent' => 'first',
+                'arguments' => array('firstArg'),
+                'abstract' => true
+            ),
+            'third' => array(
+                'parent' => 'second'
+            ),
+            'fourth' => array(
+                'parent' => 'second',
+                'arguments' => array('secondArg')
+            )
+        ));
+
+        $this->assertInstanceOf('\IteratorAggregate', $repo);
+        $this->assertEquals(new \ArrayIterator($repo->getTerminableDefinitions()), $repo->getIterator());
+    }
+
     /**
      * @expectedException \RuntimeException
      */

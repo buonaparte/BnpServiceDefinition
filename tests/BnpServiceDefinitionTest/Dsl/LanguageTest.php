@@ -85,6 +85,50 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
         $this->language->registerExtension($second);
     }
 
+    public function getCompositeProvidersMocks()
+    {
+        $extension = $this->getMock('BnpServiceDefinitionTest\Dsl\Extension\Feature\CompositeProviderMock');
+
+        $extension->expects($this->atLeastOnce())
+            ->method('getContextVariables')
+            ->will($this->returnValue(array()));
+
+        $extension->expects($this->atLeastOnce())
+            ->method('getName')
+            ->will($this->returnValue('some_function'));
+        $extension->expects($this->atLeastOnce())
+            ->method('getEvaluator')
+            ->will($this->returnValue(function () {}));
+        $extension->expects($this->atLeastOnce())
+            ->method('getCompiler')
+            ->will($this->returnValue(function () { return ''; }));
+
+        return array(
+            array($extension)
+        );
+    }
+
+    /**
+     * @dataProvider getCompositeProvidersMocks
+     */
+    public function testRegistersCompositeProviderExtensions($extension)
+    {
+        $this->language->registerExtension($extension);
+
+        $this->language->evaluate('true');
+    }
+
+    /**
+     * @dataProvider getCompositeProvidersMocks
+     */
+    public function testRegistersExtensionProviderFromInjectedServiceLocator($extension)
+    {
+        $this->services->setService('some_extension', $extension);
+        $this->language->registerExtension('some_extension');
+
+        $this->language->evaluate('true');
+    }
+
     public function testSilentPassesInvalidExtensions()
     {
         $this->language->registerExtension(1);

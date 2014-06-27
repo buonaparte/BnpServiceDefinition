@@ -21,7 +21,8 @@ class ReferenceResolver extends AbstractPluginManager
         $plugins = array(
             'BnpServiceDefinition\Reference\ValueReference',
             'BnpServiceDefinition\Reference\ConfigReference',
-            'BnpServiceDefinition\Reference\ServiceReference'
+            'BnpServiceDefinition\Reference\ServiceReference',
+            'BnpServiceDefinition\Reference\DslReference'
         );
 
         foreach ($plugins as $plugin) {

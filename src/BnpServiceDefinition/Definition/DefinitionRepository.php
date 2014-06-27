@@ -2,14 +2,19 @@
 
 namespace BnpServiceDefinition\Definition;
 
-use Zend\Stdlib\ArrayUtils;
+use Traversable;
 
-class DefinitionRepository
+class DefinitionRepository implements \IteratorAggregate
 {
     /**
      * @var array
      */
     protected $definitions;
+
+    /**
+     * @var
+     */
+    protected $terminableDefinitions;
 
     /**
      * @var string
@@ -35,12 +40,24 @@ class DefinitionRepository
         return array_key_exists($id, $this->definitions);
     }
 
-    public function getDefinitions()
+    public function getTerminableDefinitions()
     {
-        return array_keys($this->definitions);
+        if (null !== $this->terminableDefinitions) {
+            return $this->terminableDefinitions;
+        }
+
+        $this->terminableDefinitions = array();
+        foreach (array_keys($this->definitions) as $id) {
+            $definition = $this->getServiceDefinition($id, false);
+            if (! $definition->getAbstract()) {
+                $this->terminableDefinitions[$id] = $definition;
+            }
+        }
+
+        return $this->terminableDefinitions;
     }
 
-    public function getServiceDefinition($id, $resolvedDefinitions = array())
+    public function getServiceDefinition($id, $final = true, $resolvedDefinitions = array())
     {
         if (array_key_exists($id, $resolvedDefinitions)) {
             throw new \RuntimeException(sprintf(
@@ -57,24 +74,26 @@ class DefinitionRepository
         $resolvedDefinitions[$id] = $definition;
 
         if ($definition->hasParent()) {
-            return $this->getServiceDefinition($definition->getParent(), $resolvedDefinitions);
+            return $this->getServiceDefinition($definition->getParent(), $final, $resolvedDefinitions);
         }
 
         $definition = $this->constructDefinition($resolvedDefinitions);
         $this->validateDefinition($definition, $id);
+
+        if ($final) {
+            if ($definition->getAbstract()) {
+                throw new \RuntimeException(sprintf(
+                    'Could not retrieve %s definition, as it is abstract',
+                    $id
+                ));
+            }
+        }
 
         return $definition;
     }
 
     protected function validateDefinition(ClassDefinition $classDefinition, $definitionName)
     {
-        if ($classDefinition->getAbstract()) {
-            throw new \RuntimeException(sprintf(
-                'Could not retrieve %s definition, as it is abstract',
-                $definitionName
-            ));
-        }
-
         if (null === $classDefinition->getClass()) {
             throw new \RuntimeException(sprintf('Retrieved definition %s has no class specified', $definitionName));
         }
@@ -136,5 +155,17 @@ class DefinitionRepository
         }
 
         return ClassDefinition::fromArray($compositeDefinition);
+    }
+
+    /**
+     * (PHP 5 &gt;= 5.0.0)<br/>
+     * Retrieve an external iterator
+     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
+     * @return Traversable An instance of an object implementing <b>Iterator</b> or
+     * <b>Traversable</b>
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->getTerminableDefinitions());
     }
 }
