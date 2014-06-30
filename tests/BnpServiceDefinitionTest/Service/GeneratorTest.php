@@ -115,6 +115,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             )
         )));
 
-        var_dump($generator->getClass()->generate());
+        print_r($generator->getClass()->generate());
+        die;
     }
 }

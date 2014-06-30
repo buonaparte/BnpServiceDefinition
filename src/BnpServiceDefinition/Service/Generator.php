@@ -37,6 +37,11 @@ class Generator
     /**
      * @var array
      */
+    protected $immutableRegisteredMethods = array('canCreateServiceWithName', 'createServiceWithName');
+
+    /**
+     * @var array
+     */
     protected $definitionFactoryMethods = array();
 
     public function __construct(DefinitionOptions $options, ReferenceResolver $referenceResolver, Language $language)
@@ -119,7 +124,7 @@ class Generator
                             )
                         )
                     ),
-                    'body' => $this->generateCanCreateMethodBody($repository)
+                    'body' => $this->getCanCreateMethodBody($repository)
                 )),
                 MethodGenerator::fromArray(array(
                     'name' => 'createServiceWithName',
@@ -152,7 +157,7 @@ class Generator
                             )
                         )
                     ),
-                    'body' => $this->generateCreateMethodBody($repository)
+                    'body' => $this->getCreateMethodBody($repository)
                 ))
             )
         ));
@@ -169,112 +174,40 @@ class Generator
 
         $definitionName = 'get' . ucfirst($this->getDefinitionCanonicalName($definitionName));
         $i = 0;
-        while (array_key_exists($definitionName, $this->definitionFactoryMethods)) {
+        while (
+            array_key_exists($definitionName, $this->immutableRegisteredMethods)
+            ||
+            array_key_exists($definitionName, $this->definitionFactoryMethods)
+        ) {
             $definitionName .= ++$i;
         }
 
         $this->definitionFactoryMethods[$definitionName] = MethodGenerator::fromArray(array(
             'name' => $definitionName,
+            'parameters' => array(
+                ParameterGenerator::fromArray(array(
+                    'name' => 'definitionName',
+                    'type' => 'string'
+                ))
+            ),
             'visibility' => 'protected',
             'docblock' => array(
                 'short_description' => sprintf('Returns the service registered under "%s" definition', $name),
                 'tags' => array(
+                    new ParamTag(
+                        'name',
+                        array('string')
+                    ),
                     new ReturnTag('object')
                 )
             ),
-            'body' => $this->generateBodyForClassDefinition($definition)
+            'body' => $this->getFactoryMethodBody($definition)
         ));
     }
 
     protected function getDefinitionCanonicalName($name)
     {
         return preg_replace('@[^\w]@', '', $name);
-    }
-
-    /**
-     * @param DefinitionRepository $repository
-     * @return string
-     */
-    protected function generateCanCreateMethodBody(DefinitionRepository $repository)
-    {
-        return sprintf("\$this->services = \$serviceLocator;\n\nreturn in_array(\$name, array(%s));",
-            implode(', ',
-                array_map(
-                    function ($definitionName) { return "'$definitionName'"; },
-                    array_keys($repository->getTerminableDefinitions())
-                )
-            )
-        );
-    }
-
-    /**
-     * @param DefinitionRepository $repository
-     * @return string
-     */
-    protected function generateCreateMethodBody(DefinitionRepository $repository)
-    {
-        if (! count($repository->getTerminableDefinitions())) {
-            return '';
-        }
-
-        $casesBody = '';
-        foreach ($repository as $name => $definition) {
-            $methodName = $name;
-            $this->addDefinitionFactoryMethod($methodName, $definition);
-
-            $casesBody .= <<<CASE_BODY
-
-    case '$name':
-        return \$this->{$methodName}();
-CASE_BODY;
-        }
-
-        return <<<SWITCH_STATEMENT_BODY
-switch(\$requestedName) {
-    $casesBody
-}
-SWITCH_STATEMENT_BODY;
-    }
-
-    protected function generateBodyForClassDefinition(ClassDefinition $definition)
-    {
-        $compiledArguments = implode(',', $this->compileReferences($definition->getArguments()));
-        return <<<STATEMENT_BODY
-\$serviceClassName = {$this->compileReference($definition->getClass())};
-\$service = new \$serviceClassName($compiledArguments);
-{$this->generateBodyForMethodCallsDefinition($definition->getMethodCalls())}
-return \$service;
-STATEMENT_BODY;
-
-    }
-
-    protected function generateBodyForMethodCallsDefinition($methodCalls)
-    {
-        $body = '';
-        foreach ($methodCalls as $methodCall) {
-            /** @var $methodCall MethodDefinition */
-            $compiledParams = implode(', ', $this->compileReferences($methodCall->getParams()));
-            $methodCallBody = <<<METHOD_CALL_BODY
-\$service->{$methodCall->getName()}($compiledParams);
-METHOD_CALL_BODY;
-
-            if (null !== $methodCall->getCondition()) {
-                $conditions = implode(
-                    ' and ',
-                    $this->referenceResolver->resolveReferences($methodCall->getCondition())
-                );
-                $methodCallBody .= <<<METHOD_CALL
-
-if ({$this->compileDslPart($conditions, array('service'))}) {
-    $methodCallBody
-}
-METHOD_CALL;
-            }
-
-            $body .= $methodCallBody . "\n";
-        }
-
-        return $body;
     }
 
     protected function compileDslPart($rawDsl, array $names = array())
@@ -294,5 +227,138 @@ METHOD_CALL;
             function ($param) use ($self, $names) { return $this->compileDslPart($param, $names); },
             $this->referenceResolver->resolveReferences($params)
         );
+    }
+
+    /**
+     * @param DefinitionRepository $repository
+     * @return string
+     */
+    protected function getCanCreateMethodBody(DefinitionRepository $repository)
+    {
+        $knownDefinitions = implode(
+            ', ',
+            array_map(
+                function ($definitionName) { return "'$definitionName'"; },
+                array_keys($repository->getTerminableDefinitions())
+            )
+        );
+
+        return
+<<<TEMPLATE
+\$this->services = \$serviceLocator;
+return in_array(\$requestedName, array($knownDefinitions));
+TEMPLATE;
+    }
+
+    protected function getCreateMethodBody(DefinitionRepository $repository)
+    {
+        if (! count($repository->getTerminableDefinitions())) {
+            return '';
+        }
+
+        $cases = '';
+        foreach ($repository as $name => $definition) {
+            $canonicalName = $name;
+            $this->addDefinitionFactoryMethod($canonicalName, $definition);
+
+            $cases .= "\n" . $this->getCaseStatementBody($name, $canonicalName);
+        }
+
+        return
+<<<TEMPLATE
+    switch (\$requestedName) {
+        $cases
+    }
+TEMPLATE;
+    }
+
+    protected function getCaseStatementBody($name, $methodName)
+    {
+        return
+<<<TEMPLATE
+    case '$name':
+        return \$this->$methodName('$name');
+TEMPLATE;
+    }
+
+    protected function getFactoryMethodBody(ClassDefinition $definition)
+    {
+        $methodCalls = '';
+        foreach (array_values($definition->getMethodCalls()) as $i => $methodCall) {
+            /** @var $methodCall MethodDefinition */
+            $methodCalls .= "\n" . $this->getFactoryMethodCallBody($methodCall, $i);
+        }
+
+        if (! empty($methodCalls)) {
+            $methodCalls = "\n$methodCalls\n";
+        }
+
+        $arguments = implode(', ', $this->compileReferences($definition->getArguments()));
+
+        return
+<<<TEMPLATE
+\$serviceClassName = {$this->compileReference($definition->getClass())};
+if (! is_string(\$serviceClassName)) {
+    throw new \RuntimeException(sprintf(
+        '%s definition class was not resolved to a string',
+        \$definitionName,
+    ));
+}
+if (! class_exists(\$serviceClassName, true)) {
+    throw new \RuntimeException(sprintf(
+        '%s definition resolved to the class %s, which does no exit',
+        \$definitionName,
+        \$serviceClassName
+    ));
+}
+\$serviceReflection = new \ReflectionClass(\$serviceClassName);
+\$service = \$serviceReflection->newInstanceArgs(array({$arguments})));
+$methodCalls
+return \$service;
+TEMPLATE;
+    }
+
+    protected function getFactoryMethodCallBody(MethodDefinition $method, $methodIndex)
+    {
+        $context = array('service');
+
+        $condition = 'true';
+        if (null !== $method->getCondition()) {
+            $conditions = implode(
+                ' and ',
+                $this->referenceResolver->resolveReferences($method->getCondition())
+            );
+            $condition = $this->compileDslPart($conditions, $context);
+        }
+
+        $params = implode(', ', $this->compileReferences($method->getParams(), $context));
+
+        return
+<<<TEMPLATE
+if ($condition) {
+    \$serviceMethod = {$this->compileReference($method->getName(), $context)}
+    if (! is_string(\$serviceMethod)) {
+        throw new \RuntimeException(sprintf(
+            'A method call can only be a string, %s provided, as %d method call for the %s service definition',
+            gettype(\$serviceMethod),
+            $methodIndex,
+            \$definitionName
+        ));
+    } elseif (! method_exists(\$service, \$serviceMethod)) {
+        throw new \RuntimeException(sprintf(
+            'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
+            get_class(\$service),
+            \$serviceMethod,
+            $methodIndex,
+            \$definitionName
+        ));
+    }
+
+    call_user_func_array(
+        array(\$service, \$serviceMethod),
+        array({$params})
+    );
+}
+TEMPLATE;
     }
 }
