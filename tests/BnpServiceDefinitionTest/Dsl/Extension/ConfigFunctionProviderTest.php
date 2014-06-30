@@ -39,9 +39,12 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
         $this->services->setFactory(
             'ConfigFunctionProvider',
             function (ServiceLocatorInterface $services) use ($definitions) {
-                return new ConfigFunctionProvider('ConfigFunctionProvider', $definitions, $services);
-            });
+                $provider = new ConfigFunctionProvider($definitions, 'ConfigFunctionProvider');
+                $provider->setServiceLocator($services);
 
+                return $provider;
+            }
+        );
 
         $this->language = new Language();
         $this->language->registerExtension('ConfigFunctionProvider');

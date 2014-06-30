@@ -55,12 +55,12 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             $this->services
         ));
 
-        $this->generator = new Generator($this->options, $this->referenceResolver, $this->language);
+        $this->generator = new Generator($this->language, $this->referenceResolver, $this->options);
     }
 
     public function testCanGenerateEmptyDefinitions()
     {
-        $generator = $this->generator->getGenerator(new DefinitionRepository(array(
+        $generator = $this->generator->generate(new DefinitionRepository(array(
             'first' => array(
                 'abstract' => true,
                 'class' => array('type' => 'service', 'value' => 'something_from_a_service'),

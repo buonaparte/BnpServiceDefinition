@@ -5,7 +5,6 @@ namespace BnpServiceDefinition\Service;
 use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodDefinition;
 use BnpServiceDefinition\Dsl\Language;
-use BnpServiceDefinition\ReferenceResolver;
 
 class Evaluator
 {

@@ -4,7 +4,7 @@ namespace BnpServiceDefinition\Factory;
 
 use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Options\DefinitionOptions;
-use BnpServiceDefinition\Service\DefinitionAbstractFactoryDumper;
+use BnpServiceDefinition\Service\Evaluator;
 use BnpServiceDefinition\Service\Generator;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -46,6 +46,16 @@ class DefinitionAbstractFactory implements
      * @var array
      */
     protected $config;
+
+    /**
+     * @var Evaluator
+     */
+    protected $evaluator;
+
+    /**
+     * @var Generator
+     */
+    protected $generator;
 
     public function __construct(DefinitionRepository $repository = null, $scopeName = null)
     {
@@ -93,14 +103,19 @@ class DefinitionAbstractFactory implements
             return false;
         }
 
+        if (! $this->getOptions($serviceLocator)->getDumpFactories()) {
+            return $this->definitionRepository->hasDefinition($requestedName);
+        }
+
         $factory = $this->getGeneratedFactory();
         if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
-            $this->getFactoryGenerator()->getGenerator($this->definitionRepository, $factory->filename)->generate();
+            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->generate();
         }
 
         require_once $factory->filename;
         /** @var $serviceLocator ServiceManager */
         $serviceLocator->addAbstractFactory($factory->class);
+        $this->generatedFactoryAttached = true;
 
         return false;
     }
@@ -133,7 +148,7 @@ class DefinitionAbstractFactory implements
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        return null;
+        return $this->getEvaluator()->evaluate($requestedName, $this->definitionRepository);
     }
 
     /**
@@ -144,7 +159,6 @@ class DefinitionAbstractFactory implements
     public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
     {
         $this->services = $serviceLocator;
-        $this->init();
     }
 
     /**
@@ -161,8 +175,22 @@ class DefinitionAbstractFactory implements
     {
         $config = $this->getConfig($this->getServiceLocator());
 
-        return isset($config[$key]['definitions'])
-            ? (array) $config[$key]['definitions']
+        if (! is_array($key)) {
+            $key = array($key);
+        }
+
+        while (! empty($key) && ! empty($config)) {
+            $path = array_shift($key);
+
+            if (isset($config[$path])) {
+                $config = $config[$path];
+            } else {
+                $config = array();
+            }
+        }
+
+        return isset($config['definitions'])
+            ? (array) $config['definitions']
             : array();
     }
 
@@ -185,9 +213,11 @@ class DefinitionAbstractFactory implements
                     'Inner service locator %s must be an instance of ServiceManager', $container));
             }
 
+            $factory = new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig)));
+            $factory->setServiceLocator($this->getServiceLocator());
+
             /** @var $serviceManager ServiceManager */
-            $serviceManager->addAbstractFactory(
-                new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig))), false);
+            $serviceManager->addAbstractFactory($factory, false);
         }
 
         $this->definitionRepository = new DefinitionRepository($this->getDefinitionsConfig('service_manager'));
@@ -196,8 +226,24 @@ class DefinitionAbstractFactory implements
     /**
      * @return Generator
      */
-    protected function getFactoryGenerator()
+    protected function getGenerator()
     {
-        return $this->getServiceLocator()->get('BnpServiceDefinition\Service\Generator');
+        if (null === $this->generator) {
+            $this->generator = $this->getServiceLocator()->get('BnpServiceDefinition\Service\Generator');
+        }
+
+        return $this->generator;
+    }
+
+    /**
+     * @return Evaluator
+     */
+    protected function getEvaluator()
+    {
+        if (null === $this->evaluator) {
+            $this->evaluator = $this->getServiceLocator()->get('BnpServiceDefinition\Service\Evaluator');
+        }
+
+        return $this->evaluator;
     }
 }

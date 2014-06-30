@@ -4,11 +4,16 @@ namespace BnpServiceDefinition\Dsl\Extension;
 
 use BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface;
 use BnpServiceDefinition\Options\DefinitionOptions;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\ArrayUtils;
 
-class ConfigFunctionProvider implements FunctionProviderInterface
+class ConfigFunctionProvider implements
+    FunctionProviderInterface,
+    ServiceLocatorAwareInterface
 {
+    const SERVICE_KEY = 'BnpServiceDefinition\Dsl\Extension\ConfigFunctionProvider';
+
     /**
      * @var string
      */
@@ -29,11 +34,10 @@ class ConfigFunctionProvider implements FunctionProviderInterface
      */
     protected $config;
 
-    public function __construct($serviceName, DefinitionOptions $options, ServiceLocatorInterface $services)
+    public function __construct(DefinitionOptions $options, $serviceName = null)
     {
-        $this->serviceName = $serviceName;
         $this->options = $options;
-        $this->services = $services;
+        $this->serviceName = null === $serviceName ? static::SERVICE_KEY : $serviceName;
     }
 
     public function getName()
@@ -72,7 +76,7 @@ CONFIG;
             return $this->config;
         }
 
-        $config = $this->services->get('Config');
+        $config = $this->getServiceLocator()->get('Config');
         if ($config instanceof \Traversable) {
             $config = ArrayUtils::iteratorToArray($config, true);
         }
@@ -137,5 +141,25 @@ CONFIG;
         }
 
         return $this->getConfigNode(is_string($config) ? $this->getConfigPath($config) : $config, $silent, $type);
+    }
+
+    /**
+     * Set service locator
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     */
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->services = $serviceLocator;
+    }
+
+    /**
+     * Get service locator
+     *
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        return $this->services;
     }
 }

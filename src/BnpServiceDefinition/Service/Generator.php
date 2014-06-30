@@ -44,14 +44,14 @@ class Generator
      */
     protected $definitionFactoryMethods = array();
 
-    public function __construct(DefinitionOptions $options, ReferenceResolver $referenceResolver, Language $language)
+    public function __construct(Language $language, ReferenceResolver $referenceResolver, DefinitionOptions $options)
     {
         $this->options = $options;
         $this->referenceResolver = $referenceResolver;
         $this->language = $language;
     }
 
-    public function getGenerator(DefinitionRepository $repository, $filename = null)
+    public function generate(DefinitionRepository $repository, $filename = null)
     {
         $classFile = new FileGenerator();
         $classFile->setClass($this->generateAbstractFactoryClass($repository));

@@ -19,6 +19,11 @@ class DefinitionOptions extends AbstractOptions
     protected $definitionAwareContainers;
 
     /**
+     * @var bool
+     */
+    protected $dumpFactories = true;
+
+    /**
      * @var string
      */
     protected $dumpDirectory;
@@ -90,5 +95,21 @@ class DefinitionOptions extends AbstractOptions
     public function getDumpedAbstractFactoriesNamespace()
     {
         return $this->dumpedAbstractFactoriesNamespace;
+    }
+
+    /**
+     * @param boolean $dumpFactories
+     */
+    public function setDumpFactories($dumpFactories)
+    {
+        $this->dumpFactories = $dumpFactories;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getDumpFactories()
+    {
+        return $this->dumpFactories;
     }
 }

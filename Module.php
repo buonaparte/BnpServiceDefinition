@@ -1,7 +1,3 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: denis
- * Date: 13/06/14
- * Time: 11:50
- */ 
+
+require __DIR__ . 'src/BnpServiceDefinition/Module.php';
