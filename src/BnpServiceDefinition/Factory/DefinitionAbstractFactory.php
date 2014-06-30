@@ -113,8 +113,14 @@ class DefinitionAbstractFactory implements
         }
 
         require_once $factory->filename;
+
+        $factoryClass = $factory->class;
+        /** @var $factoryInstance ServiceLocatorAwareInterface */
+        $factoryInstance = new $factoryClass($this->scopeName);
+        $factoryInstance->setServiceLocator($this->getServiceLocator());
+
         /** @var $serviceLocator ServiceManager */
-        $serviceLocator->addAbstractFactory(new $factory->class);
+        $serviceLocator->addAbstractFactory($factoryInstance);
         $this->generatedFactoryAttached = true;
 
         return $this->definitionRepository->hasDefinition($requestedName);

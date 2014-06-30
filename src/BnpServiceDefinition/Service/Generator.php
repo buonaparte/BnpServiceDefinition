@@ -76,7 +76,8 @@ class Generator
         $class = ClassGenerator::fromArray(array(
             'name' => sprintf('BnpGeneratedAbstractFactory_%s', $repository->getChecksum()),
             'implemented_interfaces' => array(
-                'Zend\ServiceManager\AbstractFactoryInterface'
+                'Zend\ServiceManager\AbstractFactoryInterface',
+                'Zend\ServiceManager\ServiceLocatorAwareInterface'
             ),
             'properties' => array(
                 PropertyGenerator::fromArray(array(
@@ -90,9 +91,37 @@ class Generator
                             )
                         )
                     )
+                )),
+                PropertyGenerator::fromArray(array(
+                    'name' => 'scopeLocatorName',
+                    'visibility' => 'protected',
+                    'docblock' => array(
+                        'tags' => array(
+                            array(
+                                'name' => 'var',
+                                'content' => 'string'
+                            )
+                        )
+                    )
                 ))
             ),
             'methods' => array(
+                MethodGenerator::fromArray(array(
+                    'name' => '__construct',
+                    'parameters' => array(
+                        ParameterGenerator::fromArray(array(
+                            'name' => 'scopeLocatorName',
+                            'default_value' => null
+                        ))
+                    ),
+                    'docblock' => array(
+                        'short_description' => 'Constructor',
+                        'tags' => array(
+                            new ParamTag('scopeLocatorName', array('string'))
+                        )
+                    ),
+                    'body' => '$this->scopeLocatorName = $scopeLocatorName;'
+                )),
                 MethodGenerator::fromArray(array(
                     'name' => 'canCreateServiceWithName',
                     'parameters' => array(
@@ -158,6 +187,38 @@ class Generator
                         )
                     ),
                     'body' => $this->getCreateMethodBody($repository)
+                )),
+                MethodGenerator::fromArray(array(
+                    'name' => 'setServiceLocator',
+                    'parameters' => array(
+                        ParameterGenerator::fromArray(array(
+                            'name' => 'serviceLocator',
+                            'type' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                        ))
+                    ),
+                    'docblock' => array(
+                        'short_description' => 'Set service locator',
+                        'tags' => array(
+                            new ParamTag(
+                                'serviceLocator',
+                                array('Zend\ServiceManager\ServiceLocatorInterface')
+                            )
+                        )
+                    ),
+                    'body' => '$this->services = $serviceLocator;'
+                )),
+                MethodGenerator::fromArray(array(
+                    'name' => 'getServiceLocator',
+                    'docblock' => array(
+                        'short_description' => 'Get service locator',
+                        'tags' => array(
+                            array(
+                                'name' => 'return',
+                                'content' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                            )
+                        )
+                    ),
+                    'body' => 'return $this->services;'
                 ))
             )
         ));
@@ -245,7 +306,6 @@ class Generator
 
         return
 <<<TEMPLATE
-\$this->services = \$serviceLocator;
 return in_array(\$requestedName, array($knownDefinitions));
 TEMPLATE;
     }

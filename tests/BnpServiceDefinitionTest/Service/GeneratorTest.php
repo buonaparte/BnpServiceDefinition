@@ -46,13 +46,9 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $this->language = new Language();
         $this->language->registerExtension(new ConfigFunctionProvider(
-            'ConfigFunctionProvider',
-            $this->options,
-            $this->services
+            $this->options
         ));
         $this->language->registerExtension(new ServiceFunctionProvider(
-            'ServiceFunctionProvider',
-            $this->services
         ));
 
         $this->generator = new Generator($this->language, $this->referenceResolver, $this->options);
