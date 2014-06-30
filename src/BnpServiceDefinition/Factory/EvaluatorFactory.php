@@ -19,9 +19,9 @@ class EvaluatorFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         /** @var $language Language */
-        $language = $serviceLocator->get('BnpServiceFactory\Dsl\Language');
+        $language = $serviceLocator->get('BnpServiceDefinition\Dsl\Language');
         /** @var $referenceResolver ReferenceResolver */
-        $referenceResolver = $serviceLocator->get('BnpServiceFactory\Service\ReferenceResolver');
+        $referenceResolver = $serviceLocator->get('BnpServiceDefinition\Service\ReferenceResolver');
 
         return new Evaluator($language, $referenceResolver);
     }

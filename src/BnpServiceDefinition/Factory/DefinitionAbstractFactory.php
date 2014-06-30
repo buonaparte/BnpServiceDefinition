@@ -109,30 +109,30 @@ class DefinitionAbstractFactory implements
 
         $factory = $this->getGeneratedFactory();
         if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
-            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->generate();
+            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->write();
         }
 
         require_once $factory->filename;
         /** @var $serviceLocator ServiceManager */
-        $serviceLocator->addAbstractFactory($factory->class);
+        $serviceLocator->addAbstractFactory(new $factory->class);
         $this->generatedFactoryAttached = true;
 
-        return false;
+        return $this->definitionRepository->hasDefinition($requestedName);
     }
 
-    protected function getOptions(ServiceLocatorInterface $serviceLocator)
+    protected function getOptions()
     {
         if (null === $this->options) {
-            $this->options = $serviceLocator->get('BnpServiceDefinition\Options\DefinitionOptions');
+            $this->options = $this->getServiceLocator()->get('BnpServiceDefinition\Options\DefinitionOptions');
         }
 
         return $this->options;
     }
 
-    protected function getConfig(ServiceLocatorInterface $serviceLocator)
+    protected function getConfig()
     {
         if (null === $this->config) {
-            $this->config = $serviceLocator->get('Config');
+            $this->config = $this->getServiceLocator()->get('Config');
         }
 
         return $this->config;
@@ -213,7 +213,7 @@ class DefinitionAbstractFactory implements
                     'Inner service locator %s must be an instance of ServiceManager', $container));
             }
 
-            $factory = new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig)));
+            $factory = new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig)), $container);
             $factory->setServiceLocator($this->getServiceLocator());
 
             /** @var $serviceManager ServiceManager */

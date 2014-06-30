@@ -78,15 +78,9 @@ class DefinitionRepository implements \IteratorAggregate
         }
 
         $definition = $this->constructDefinition($resolvedDefinitions);
-        $this->validateDefinition($definition, $id);
 
         if ($final) {
-            if ($definition->getAbstract()) {
-                throw new \RuntimeException(sprintf(
-                    'Could not retrieve %s definition, as it is abstract',
-                    $id
-                ));
-            }
+            $this->validateDefinition($definition, $id);
         }
 
         return $definition;
@@ -96,6 +90,13 @@ class DefinitionRepository implements \IteratorAggregate
     {
         if (null === $classDefinition->getClass()) {
             throw new \RuntimeException(sprintf('Retrieved definition %s has no class specified', $definitionName));
+        }
+
+        if ($classDefinition->getAbstract()) {
+            throw new \RuntimeException(sprintf(
+                'Could not retrieve %s definition, as it is abstract',
+                $definitionName
+            ));
         }
     }
 

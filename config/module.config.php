@@ -6,16 +6,16 @@ return array(
             'ControllerManager' => 'controller_manager'
         ),
         'dump_directory' => './data/bnp-service-definition',
-        'dump_abstract_factories_namespace' => 'BnpServiceDefinition\Generated'
+        'dump_abstract_factories_namespace' => 'BnpServiceDefinition\Generated',
+        'dump_factories' => true
     ),
     'service_manager' => array(
         'invokables' => array(
-            \BnpServiceDefinition\Dsl\Extension\PluginFunctionProvider::SERVICE_KEY =>
-                'BnpServiceDefinition\Dsl\Extension\PluginFunctionProvider',
             \BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider::SERVICE_KEY =>
                 'BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider',
             'BnpServiceDefinition\Factory\DefinitionAbstractFactory' =>
-                'BnpServiceDefinition\Factory\DefinitionAbstractFactory'
+                'BnpServiceDefinition\Factory\DefinitionAbstractFactory',
+            'BnpServiceDefinition\Service\ReferenceResolver' => 'BnpServiceDefinition\Service\ReferenceResolver'
         ),
         'factories' => array(
             'BnpServiceDefinition\Service\Evaluator' => 'BnpServiceDefinition\Factory\EvaluatorFactory',

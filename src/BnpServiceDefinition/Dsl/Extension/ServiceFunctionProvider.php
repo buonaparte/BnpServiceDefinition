@@ -31,7 +31,7 @@ class ServiceFunctionProvider implements
 
     public function getName()
     {
-        return 'plugin';
+        return 'service';
     }
 
     public function getEvaluator(array $context = array())

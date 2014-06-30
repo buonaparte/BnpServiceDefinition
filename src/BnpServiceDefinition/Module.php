@@ -7,6 +7,7 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\Mvc\MvcEvent;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\InitializableInterface;
 
 class Module implements
@@ -37,7 +38,7 @@ class Module implements
      */
     public function getConfig()
     {
-        return include __DIR__ . '../../config/module.config.php';
+        return include __DIR__ . '/../../config/module.config.php';
     }
 
     /**
@@ -55,5 +56,8 @@ class Module implements
         if ($definitionAbstractFactory instanceof InitializableInterface) {
             $definitionAbstractFactory->init();
         }
+
+        /** @var $services ServiceManager */
+        $services->addAbstractFactory($definitionAbstractFactory);
     }
 }

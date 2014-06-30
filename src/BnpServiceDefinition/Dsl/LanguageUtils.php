@@ -6,7 +6,8 @@ class LanguageUtils
 {
     public static function escapeSingleQuotedString($string)
     {
-        return preg_replace("#(^|[^\\\\])'#", "$1\\'", $string);
+        $string = preg_replace("#(^|[^\\\\])'#", "$1\\'", $string);
+        return str_replace('\\', '\\\\', $string);
     }
 
     public static function escapeDoubleQuotedString($string)

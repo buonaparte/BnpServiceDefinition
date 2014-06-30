@@ -301,7 +301,7 @@ TEMPLATE;
 if (! is_string(\$serviceClassName)) {
     throw new \RuntimeException(sprintf(
         '%s definition class was not resolved to a string',
-        \$definitionName,
+        \$definitionName
     ));
 }
 if (! class_exists(\$serviceClassName, true)) {
@@ -312,7 +312,7 @@ if (! class_exists(\$serviceClassName, true)) {
     ));
 }
 \$serviceReflection = new \ReflectionClass(\$serviceClassName);
-\$service = \$serviceReflection->newInstanceArgs(array({$arguments})));
+\$service = \$serviceReflection->newInstanceArgs(array({$arguments}));
 $methodCalls
 return \$service;
 TEMPLATE;
@@ -336,7 +336,7 @@ TEMPLATE;
         return
 <<<TEMPLATE
 if ($condition) {
-    \$serviceMethod = {$this->compileReference($method->getName(), $context)}
+    \$serviceMethod = {$this->compileReference($method->getName(), $context)};
     if (! is_string(\$serviceMethod)) {
         throw new \RuntimeException(sprintf(
             'A method call can only be a string, %s provided, as %d method call for the %s service definition',

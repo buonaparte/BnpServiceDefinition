@@ -123,6 +123,7 @@ class ClassDefinition
      */
     public function getArguments()
     {
+        ksort($this->arguments);
         return $this->arguments;
     }
 
