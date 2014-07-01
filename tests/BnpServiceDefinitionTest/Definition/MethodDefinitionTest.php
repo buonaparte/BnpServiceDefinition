@@ -10,8 +10,8 @@ class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
     {
         $definition = new MethodCallDefinition('setSomething');
 
-        $this->assertInternalType('array', $definition->getParams());
-        $this->assertEmpty($definition->getParams());
+        $this->assertInternalType('array', $definition->getParameters());
+        $this->assertEmpty($definition->getParameters());
         $this->assertNull($definition->getConditions());
     }
 
@@ -36,7 +36,7 @@ class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $definition);
         $this->assertEquals('someSetter', $definition->getName());
-        $this->assertEquals(array('setterArg'), $definition->getParams());
+        $this->assertEquals(array('setterArg'), $definition->getParameters());
         $this->assertEquals(array('somethingIsFalse'), $definition->getConditions());
     }
 

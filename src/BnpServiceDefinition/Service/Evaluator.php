@@ -14,14 +14,14 @@ class Evaluator
     protected $language;
 
     /**
-     * @var ReferenceResolver
+     * @var ParameterResolver
      */
-    protected $referenceResolver;
+    protected $parameterResolver;
 
-    public function __construct(Language $language, ReferenceResolver $resolver)
+    public function __construct(Language $language, ParameterResolver $resolver)
     {
         $this->language = $language;
-        $this->referenceResolver = $resolver;
+        $this->parameterResolver = $resolver;
     }
 
     public function evaluate($definitionName, DefinitionRepository $repository)
@@ -71,7 +71,7 @@ class Evaluator
 
             call_user_func_array(
                 array($service, $method),
-                $this->evaluateArguments($methodCall->getParams(), $context)
+                $this->evaluateArguments($methodCall->getParameters(), $context)
             );
         }
 
@@ -80,7 +80,7 @@ class Evaluator
 
     protected function evaluateArgument($argument, array $context = array())
     {
-        return $this->language->evaluate($this->referenceResolver->resolveReference($argument), $context);
+        return $this->language->evaluate($this->parameterResolver->resolveParameter($argument), $context);
     }
 
     protected function evaluateArguments(array $args, array $context = array())
@@ -90,7 +90,7 @@ class Evaluator
             function ($arg) use ($language, $context) {
                 return $language->evaluate($arg, $context);
             },
-            $this->referenceResolver->resolveReferences($args)
+            $this->parameterResolver->resolveParameters($args)
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace BnpServiceDefinition\Reference\Exception;
+namespace BnpServiceDefinition\Exception;
 
 class RuntimeException extends \RuntimeException implements ExceptionInterface
 {

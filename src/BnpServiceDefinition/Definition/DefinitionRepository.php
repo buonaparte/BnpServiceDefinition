@@ -127,7 +127,7 @@ class DefinitionRepository implements \IteratorAggregate
                     if ($hasMethodCall->getName() == $method->getName()) {
                         $methodCallSpecs = array(
                             'name' => $method->getName(),
-                            'params' => array_merge($hasMethodCall->getParams(), $method->getParams()),
+                            'params' => array_merge($hasMethodCall->getParameters(), $method->getParameters()),
                             'conditions' => null
                         );
 

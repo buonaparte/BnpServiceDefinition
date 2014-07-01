@@ -107,40 +107,35 @@ CONFIG;
         return $config;
     }
 
-    protected function getConfigPath($path)
-    {
-        return explode($this->options->getConfigPathSeparator(), $path);
-    }
-
     public function getConfigValue($config, $silent = true, $type = null)
     {
         if ($config instanceof \Traversable) {
             $config = ArrayUtils::iteratorToArray($config);
         }
 
-        if (is_array($config)) {
-            if (empty($config)) {
-                throw new \InvalidArgumentException('config cannot be an empty array');
-            }
-
-            $self = $this;
-            array_walk($config, function ($part, $idx) use ($self) {
-                if (! is_string($part)) {
-                    throw new \InvalidArgumentException(sprintf(
-                        'config can only contain strings as array path elements, %s received at index %d',
-                        gettype($part),
-                        $idx
-                    ));
-                }
-            });
-        } elseif (! is_string($config)) {
+        if (! is_array($config)) {
             throw new \InvalidArgumentException(sprintf(
-                'Config can only be a path string or array, %s provided',
+                'Config can only be a path array, %s provided',
                 gettype($config)
             ));
         }
 
-        return $this->getConfigNode(is_string($config) ? $this->getConfigPath($config) : $config, $silent, $type);
+        if (empty($config)) {
+            throw new \InvalidArgumentException('config cannot be an empty array');
+        }
+
+        $self = $this;
+        array_walk($config, function ($part, $idx) use ($self) {
+            if (! is_string($part)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'config can only contain strings as array path elements, %s received at index %d',
+                    gettype($part),
+                    $idx
+                ));
+            }
+        });
+
+        return $this->getConfigNode($config, $silent, $type);
     }
 
     /**

@@ -102,23 +102,32 @@ class ClassDefinition
         return $this->methodCalls;
     }
 
-    public function addMethodCall($method)
+    public function addMethodCall($methodCall)
     {
-        if ($method instanceof MethodCallDefinition) {
-            $this->methodCalls[] = $method;
-            return $this;
+        if (! $methodCall instanceof MethodCallDefinition) {
+            if (empty($methodCall) || ! is_string($methodCall) && ! is_array($methodCall)) {
+                throw new \RuntimeException(sprintf(
+                    'Method name cannot be empty, must be a method name, or a method call array specs, %s provided',
+                    gettype($methodCall)
+                ));
+            }
+
+            $methodCall = is_string($methodCall)
+                ? new MethodCallDefinition($methodCall)
+                : MethodCallDefinition::fromArray($methodCall);
         }
 
-        if (empty($method) || ! is_string($method) && ! is_array($method)) {
-            throw new \RuntimeException(sprintf(
-                'Method name cannot be empty, must be a method name, or a method call array specs, %s provided',
-                gettype($method)
-            ));
+        foreach ($this->methodCalls as &$method) {
+            /** @var $method MethodCallDefinition */
+            if ($methodCall->getName() === $method->getName()) {
+                $method->setParameters(array_merge($method->getParameters(), $methodCall->getParameters()));
+                $method->setConditions(array_merge($method->getConditions(), $methodCall->getConditions()));
+
+                return $this;
+            }
         }
 
-        $this->methodCalls[] = is_string($method)
-            ? new MethodCallDefinition($method)
-            : MethodCallDefinition::fromArray($method);
+        $this->methodCalls[] = $methodCall;
         return $this;
     }
 

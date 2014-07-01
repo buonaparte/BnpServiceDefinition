@@ -1,6 +1,6 @@
 <?php
 
-namespace BnpServiceDefinition\Reference\Exception;
+namespace BnpServiceDefinition\Exception;
 
 class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {

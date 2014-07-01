@@ -2,21 +2,21 @@
 
 namespace BnpServiceDefinitionTest\Service;
 
-use BnpServiceDefinition\Reference\ConfigReference;
-use BnpServiceDefinition\Service\ReferenceResolver;
-use BnpServiceDefinition\Reference\ServiceReference;
-use BnpServiceDefinition\Reference\ValueReference;
+use BnpServiceDefinition\Parameter\ConfigParameter;
+use BnpServiceDefinition\Service\ParameterResolver;
+use BnpServiceDefinition\Parameter\ServiceParameter;
+use BnpServiceDefinition\Parameter\ValueParameter;
 
 class ReferenceResolverTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \BnpServiceDefinition\Service\ReferenceResolver
+     * @var \BnpServiceDefinition\Service\ParameterResolver
      */
     protected $resolver;
 
     protected function setUp()
     {
-        $this->resolver = new ReferenceResolver();
+        $this->resolver = new ParameterResolver();
     }
 
     public function testDefaultRegisteredPluginsAreAvailable()
@@ -39,34 +39,34 @@ class ReferenceResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf(
             'BnpServiceDefinition\Reference\ConfigReference',
-            $this->resolver->get(ConfigReference::getType())
+            $this->resolver->get(ConfigParameter::getType())
         );
         $this->assertInstanceOf(
             'BnpServiceDefinition\Reference\ServiceReference',
-            $this->resolver->get(ServiceReference::getType())
+            $this->resolver->get(ServiceParameter::getType())
         );
         $this->assertInstanceOf(
             'BnpServiceDefinition\Reference\ValueReference',
-            $this->resolver->get(ValueReference::getType())
+            $this->resolver->get(ValueParameter::getType())
         );
     }
 
     public function testDefaultReferenceType()
     {
         $this->assertEquals('value', $this->resolver->getDefaultResolvedType());
-        $this->assertEquals("'something'", $this->resolver->resolveReference('something'));
+        $this->assertEquals("'something'", $this->resolver->resolveParameter('something'));
     }
 
     public function testCanChangeFallbackReferenceType()
     {
         $this->resolver->setDefaultResolvedType('value');
-        $this->assertEquals('1', $this->resolver->resolveReference(1));
+        $this->assertEquals('1', $this->resolver->resolveParameter(1));
 
         $this->resolver->setDefaultResolvedType('config');
-        $this->assertEquals("config('some_config')", $this->resolver->resolveReference('some_config'));
+        $this->assertEquals("config('some_config')", $this->resolver->resolveParameter('some_config'));
 
         $this->resolver->setDefaultResolvedType('service');
-        $this->assertEquals("service('some_service')", $this->resolver->resolveReference('some_service'));
+        $this->assertEquals("service('some_service')", $this->resolver->resolveParameter('some_service'));
     }
 
     public function testCanRegisterAndUseAdditionalReferenceTypePlugins()
@@ -92,7 +92,7 @@ class ReferenceResolverTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             'true',
-            $this->resolver->resolveReference(array(
+            $this->resolver->resolveParameter(array(
                 'type' => call_user_func(array(get_class($reference), 'getType')),
                 'value' => 'ignorable_value'
             ))

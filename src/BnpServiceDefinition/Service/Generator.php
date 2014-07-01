@@ -7,7 +7,7 @@ use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodCallDefinition;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
-use BnpServiceDefinition\Service\ReferenceResolver;
+use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
@@ -25,9 +25,9 @@ class Generator
     protected $options;
 
     /**
-     * @var \BnpServiceDefinition\Service\ReferenceResolver
+     * @var \BnpServiceDefinition\Service\ParameterResolver
      */
-    protected $referenceResolver;
+    protected $parameterResolver;
 
     /**
      * @var Language
@@ -44,10 +44,10 @@ class Generator
      */
     protected $definitionFactoryMethods = array();
 
-    public function __construct(Language $language, ReferenceResolver $referenceResolver, DefinitionOptions $options)
+    public function __construct(Language $language, ParameterResolver $parameterResolver, DefinitionOptions $options)
     {
         $this->options = $options;
-        $this->referenceResolver = $referenceResolver;
+        $this->parameterResolver = $parameterResolver;
         $this->language = $language;
     }
 
@@ -268,17 +268,17 @@ class Generator
         return $this->language->compile($rawDsl, $names);
     }
 
-    protected function compileReference($param, array $names = array())
+    protected function compileParameter($param, array $names = array())
     {
-        return $this->compileDslPart($this->referenceResolver->resolveReference($param), $names);
+        return $this->compileDslPart($this->parameterResolver->resolveParameter($param), $names);
     }
 
-    protected function compileReferences(array $params = array(), $names = array())
+    protected function compileParameters(array $params = array(), $names = array())
     {
         $self = $this;
         return array_map(
             function ($param) use ($self, $names) { return $this->compileDslPart($param, $names); },
-            $this->referenceResolver->resolveReferences($params)
+            $this->parameterResolver->resolveParameters($params)
         );
     }
 
@@ -345,11 +345,11 @@ TEMPLATE;
             $methodCalls = "\n$methodCalls\n";
         }
 
-        $arguments = implode(', ', $this->compileReferences($definition->getArguments()));
+        $arguments = implode(', ', $this->compileParameters($definition->getArguments()));
 
         return
 <<<TEMPLATE
-\$serviceClassName = {$this->compileReference($definition->getClass())};
+\$serviceClassName = {$this->compileParameter($definition->getClass())};
 if (! is_string(\$serviceClassName)) {
     throw new \RuntimeException(sprintf(
         '%s definition class was not resolved to a string',
@@ -378,17 +378,17 @@ TEMPLATE;
         if (null !== $method->getConditions()) {
             $conditions = implode(
                 ' and ',
-                $this->referenceResolver->resolveReferences($method->getConditions())
+                $this->parameterResolver->resolveParameters($method->getConditions())
             );
             $condition = $this->compileDslPart($conditions, $context);
         }
 
-        $params = implode(', ', $this->compileReferences($method->getParams(), $context));
+        $params = implode(', ', $this->compileParameters($method->getParameters(), $context));
 
         return
 <<<TEMPLATE
 if ($condition) {
-    \$serviceMethod = {$this->compileReference($method->getName(), $context)};
+    \$serviceMethod = {$this->compileParameter($method->getName(), $context)};
     if (! is_string(\$serviceMethod)) {
         throw new \RuntimeException(sprintf(
             'A method call can only be a string, %s provided, as %d method call for the %s service definition',

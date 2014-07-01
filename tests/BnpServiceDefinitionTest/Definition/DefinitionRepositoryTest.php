@@ -141,19 +141,19 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
         $fourthMethodThird = $fourthMethodCalls[2];
 
         $this->assertEquals('firstMethod', $secondMethodFirst->getName());
-        $this->assertEquals(array('firstParam'), $secondMethodFirst->getParams());
+        $this->assertEquals(array('firstParam'), $secondMethodFirst->getParameters());
 
         $this->assertEquals('firstMethod', $fourthMethodFirst->getName());
-        $this->assertEquals(array('secondParameter', 'thirdParameter'), array_values($fourthMethodFirst->getParams()));
+        $this->assertEquals(array('secondParameter', 'thirdParameter'), array_values($fourthMethodFirst->getParameters()));
 
         $this->assertEquals('secondMethod', $fourthMethodSecond->getName());
         $this->assertEquals(
             array('firstParameter', 'secondParameter', 'thirdParameter'),
-            array_values($fourthMethodSecond->getParams())
+            array_values($fourthMethodSecond->getParameters())
         );
 
         $this->assertEquals('thirdMethod', $fourthMethodThird->getName());
-        $this->assertEmpty($fourthMethodThird->getParams());
+        $this->assertEmpty($fourthMethodThird->getParameters());
     }
 
     public function testCanMergeMethodCallConditionWithParent()

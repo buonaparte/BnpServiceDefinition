@@ -1,31 +1,23 @@
 <?php
 
-namespace BnpServiceDefinition\Reference;
+namespace BnpServiceDefinition\Parameter;
 
 use BnpServiceDefinition\Dsl\LanguageUtils;
-use BnpServiceDefinition\Reference\Exception\InvalidArgumentException;
+use BnpServiceDefinition\Exception;
 
-class ServiceReference implements ReferenceInterface
+class ServiceParameter implements ParameterInterface
 {
     /**
-     * @return string
-     */
-    public static function getType()
-    {
-        return 'service';
-    }
-
-    /**
-     * @param $definition array|string
+     * @param $definition array
      * @return string BnpServiceDefinition\Dsl\Language compatible
-     * @throws InvalidArgumentException
+     * @throws Exception\InvalidArgumentException if not an non-empty array provided
      */
     public function compile($definition)
     {
         if (! is_string($definition)) {
-            throw new InvalidArgumentException(sprintf(
+            throw new Exception\InvalidArgumentException(sprintf(
                 '%s can only compile string values, %s provided',
-                $this::getType(),
+                get_class($this),
                 gettype($definition)
             ));
         }

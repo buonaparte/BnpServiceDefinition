@@ -1,20 +1,13 @@
 <?php
 
-namespace BnpServiceDefinition\Reference;
+namespace BnpServiceDefinition\Parameter;
 
 use BnpServiceDefinition\Dsl\LanguageUtils;
 use Zend\Stdlib\ArrayUtils;
+use BnpServiceDefinition\Exception;
 
-class ValueReference implements ReferenceInterface
+class ValueParameter implements ParameterInterface
 {
-    /**
-     * @return string
-     */
-    public static function getType()
-    {
-        return 'value';
-    }
-
     /**
      * @param $definition array|string
      * @return string BnpServiceDefinition\Dsl\Language compatible

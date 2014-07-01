@@ -9,11 +9,6 @@ class DefinitionOptions extends AbstractOptions
     protected $__strictMode__ = false;
 
     /**
-     * @var string
-     */
-    protected $configPathSeparator = ':';
-
-    /**
      * @var array
      */
     protected $definitionAwareContainers;
@@ -21,28 +16,12 @@ class DefinitionOptions extends AbstractOptions
     /**
      * @var bool
      */
-    protected $dumpFactories = true;
+    protected $dumpFactories = false;
 
     /**
      * @var string
      */
     protected $dumpDirectory;
-
-    /**
-     * @param string $configPathSeparator
-     */
-    public function setConfigPathSeparator($configPathSeparator)
-    {
-        $this->configPathSeparator = $configPathSeparator;
-    }
-
-    /**
-     * @return string
-     */
-    public function getConfigPathSeparator()
-    {
-        return $this->configPathSeparator;
-    }
 
     /**
      * @param array $definitionAwareContainers

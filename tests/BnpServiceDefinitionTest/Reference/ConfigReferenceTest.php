@@ -2,19 +2,19 @@
 
 namespace BnpServiceDefinitionTest\Reference;
 
-use BnpServiceDefinition\Reference\ConfigReference;
+use BnpServiceDefinition\Parameter\ConfigParameter;
 use BnpServiceDefinition\Reference\Exception\InvalidArgumentException;
 
 class ConfigReferenceTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ConfigReference
+     * @var ConfigParameter
      */
     protected $configReference;
 
     protected function setUp()
     {
-        $this->configReference = new ConfigReference();
+        $this->configReference = new ConfigParameter();
     }
 
     public function testCompileByProvidingStringConfigPath()

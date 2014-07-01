@@ -51,7 +51,7 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $methodCall);
         $this->assertEquals('someSetter', $methodCall->getName());
-        $this->assertEquals(array('setterArg'), $methodCall->getParams());
+        $this->assertEquals(array('setterArg'), $methodCall->getParameters());
         $this->assertEquals(array('somethingIsTrue'), $methodCall->getConditions());
     }
 

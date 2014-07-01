@@ -14,7 +14,7 @@ class MethodCallDefinition
     /**
      * @var array
      */
-    protected $params;
+    protected $parameters;
 
     /**
      * @var string|array
@@ -24,7 +24,7 @@ class MethodCallDefinition
     public function __construct($name, array $params = array(), $condition = null)
     {
         $this->setName($name);
-        $this->setParams($params);
+        $this->setParameters($params);
         $this->setConditions($condition);
     }
 
@@ -63,7 +63,7 @@ class MethodCallDefinition
 
                 case 'params':
                 case 'parameters':
-                    $methodCall->setParams($value);
+                    $methodCall->setParameters($value);
                     break;
 
                 case 'condition':
@@ -120,16 +120,16 @@ class MethodCallDefinition
     /**
      * @param array $params
      */
-    public function setParams($params)
+    public function setParameters($params)
     {
-        $this->params = $params;
+        $this->parameters = $params;
     }
 
     /**
      * @return array
      */
-    public function getParams()
+    public function getParameters()
     {
-        return $this->params;
+        return $this->parameters;
     }
 }

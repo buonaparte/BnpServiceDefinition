@@ -8,7 +8,7 @@ use BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\Service\Generator;
-use BnpServiceDefinition\Service\ReferenceResolver;
+use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\ServiceManager\ServiceManager;
 
 class GeneratorTest extends \PHPUnit_Framework_TestCase
@@ -19,7 +19,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     protected $options;
 
     /**
-     * @var \BnpServiceDefinition\Service\ReferenceResolver
+     * @var \BnpServiceDefinition\Service\ParameterResolver
      */
     protected $referenceResolver;
 
@@ -41,7 +41,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->options = new DefinitionOptions();
-        $this->referenceResolver = new ReferenceResolver();
+        $this->referenceResolver = new ParameterResolver();
         $this->services = new ServiceManager();
 
         $this->language = new Language();

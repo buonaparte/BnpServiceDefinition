@@ -5,7 +5,7 @@ namespace BnpServiceDefinition\Factory;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\Service\Generator;
-use BnpServiceDefinition\Service\ReferenceResolver;
+use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -21,11 +21,11 @@ class GeneratorFactory implements FactoryInterface
     {
         /** @var $language Language */
         $language = $serviceLocator->get('BnpServiceDefinition\Dsl\Language');
-        /** @var $referenceResolver ReferenceResolver */
-        $referenceResolver = $serviceLocator->get('BnpServiceDefinition\Service\ReferenceResolver');
+        /** @var $parameterResolver ParameterResolver */
+        $parameterResolver = $serviceLocator->get('BnpServiceDefinition\Service\ParameterResolver');
         /** @var $options DefinitionOptions */
         $options = $serviceLocator->get('BnpServiceDefinition\Options\DefinitionOptions');
 
-        return new Generator($language, $referenceResolver, $options);
+        return new Generator($language, $parameterResolver, $options);
     }
 }

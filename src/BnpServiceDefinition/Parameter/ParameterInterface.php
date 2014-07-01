@@ -2,9 +2,13 @@
 
 namespace BnpServiceDefinition\Parameter;
 
+use BnpServiceDefinition\Exception;
+
 interface ParameterInterface
 {
-    public static function fromArray(array $options = array());
-
-    public function compile();
+    /**
+     * @param $definition array|string
+     * @return string BnpServiceDefinition\Dsl\Language compatible
+     */
+    public function compile($definition);
 }

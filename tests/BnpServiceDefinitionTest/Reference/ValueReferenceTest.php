@@ -2,18 +2,18 @@
 
 namespace BnpServiceDefinitionTest\Reference;
 
-use BnpServiceDefinition\Reference\ValueReference;
+use BnpServiceDefinition\Parameter\ValueParameter;
 
 class ValueReferenceTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ValueReference
+     * @var \BnpServiceDefinition\Parameter\ValueParameter
      */
     protected $valueReference;
 
     protected function setUp()
     {
-        $this->valueReference = new ValueReference();
+        $this->valueReference = new \BnpServiceDefinition\Parameter\ValueParameter();
     }
 
     public function testCompilesWithPrimitives()

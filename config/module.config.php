@@ -12,7 +12,7 @@ return array(
                 'BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider',
             'BnpServiceDefinition\Factory\DefinitionAbstractFactory' =>
                 'BnpServiceDefinition\Factory\DefinitionAbstractFactory',
-            'BnpServiceDefinition\Service\ReferenceResolver' => 'BnpServiceDefinition\Service\ReferenceResolver'
+            'BnpServiceDefinition\Service\ParameterResolver' => 'BnpServiceDefinition\Service\ParameterResolver'
         ),
         'factories' => array(
             'BnpServiceDefinition\Service\Evaluator' => 'BnpServiceDefinition\Factory\EvaluatorFactory',

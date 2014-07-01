@@ -2,18 +2,18 @@
 
 namespace BnpServiceDefinitionTest\Definition;
 
-use BnpServiceDefinition\Reference\ServiceReference;
+use BnpServiceDefinition\Parameter\ServiceParameter;
 
 class ServiceReferenceTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ServiceReference
+     * @var ServiceParameter
      */
     protected $serviceReference;
 
     protected function setUp()
     {
-        $this->serviceReference = new ServiceReference();
+        $this->serviceReference = new ServiceParameter();
     }
 
     public function testCompileCorrectProvidedString()

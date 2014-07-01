@@ -2,12 +2,12 @@
 
 namespace BnpServiceDefinition\Service;
 
-use BnpServiceDefinition\Reference\ReferenceInterface;
+use BnpServiceDefinition\Parameter\ParameterInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\Exception;
 
-class ReferenceResolver extends AbstractPluginManager
+class ParameterResolver extends AbstractPluginManager
 {
     /**
      * @var string
@@ -19,19 +19,19 @@ class ReferenceResolver extends AbstractPluginManager
         parent::__construct($configuration);
 
         $plugins = array(
-            'BnpServiceDefinition\Reference\ValueReference',
-            'BnpServiceDefinition\Reference\ConfigReference',
-            'BnpServiceDefinition\Reference\ServiceReference',
-            'BnpServiceDefinition\Reference\DslReference'
+            'BnpServiceDefinition\Parameter\ValueParameter' => 'value',
+            'BnpServiceDefinition\Parameter\ConfigParameter' => 'config',
+            'BnpServiceDefinition\Parameter\ServiceParameter' => 'service',
+            'BnpServiceDefinition\Parameter\DslParameter' => 'dsl'
         );
 
-        foreach ($plugins as $plugin) {
+        foreach ($plugins as $plugin => $alias) {
             $this->setInvokableClass($plugin, $plugin);
-            $this->setAlias(call_user_func(array($plugin, 'getType')), $plugin);
+            $this->setAlias($alias, $plugin);
         }
     }
 
-    public function resolveReference($parameter, $compile = true)
+    public function resolveParameter($parameter, $compile = true)
     {
         if (! is_array($parameter)) {
             $parameter = array('type' => $this->defaultResolvedType, 'value' => $parameter);
@@ -49,22 +49,22 @@ class ReferenceResolver extends AbstractPluginManager
             return $parameter;
         }
 
-        /** @var $reference ReferenceInterface */
+        /** @var $reference \BnpServiceDefinition\Parameter\ParameterInterface */
         $reference = $this->get($parameter['type']);
         return $reference->compile($parameter['value']);
     }
 
-    public function resolveReferences(array $parameters = array())
+    public function resolveParameters(array $parameters = array())
     {
         foreach ($parameters as &$parameter) {
-            $parameter = $this->resolveReference($parameter, false);
+            $parameter = $this->resolveParameter($parameter, false);
         }
 
         usort($parameters, function ($first, $second) {
             return $first['order'] == $second['order'] ? 0 : ($first['order'] > $second['order'] ? 1 : -1);
         });
 
-        return array_map(array($this, 'resolveReference'), $parameters);
+        return array_map(array($this, 'resolveParameter'), $parameters);
     }
 
     /**
@@ -100,7 +100,7 @@ class ReferenceResolver extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if (! $plugin instanceof ReferenceInterface) {
+        if (! $plugin instanceof ParameterInterface) {
             throw new Exception\RuntimeException(sprintf(
                 '%s expects retrieving a valid %s instance, %s resolved',
                 get_class($this),

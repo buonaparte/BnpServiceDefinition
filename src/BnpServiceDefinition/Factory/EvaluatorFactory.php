@@ -4,7 +4,7 @@ namespace BnpServiceDefinition\Factory;
 
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Service\Evaluator;
-use BnpServiceDefinition\Service\ReferenceResolver;
+use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -20,9 +20,9 @@ class EvaluatorFactory implements FactoryInterface
     {
         /** @var $language Language */
         $language = $serviceLocator->get('BnpServiceDefinition\Dsl\Language');
-        /** @var $referenceResolver ReferenceResolver */
-        $referenceResolver = $serviceLocator->get('BnpServiceDefinition\Service\ReferenceResolver');
+        /** @var $parameterResolver ParameterResolver */
+        $parameterResolver = $serviceLocator->get('BnpServiceDefinition\Service\ParameterResolver');
 
-        return new Evaluator($language, $referenceResolver);
+        return new Evaluator($language, $parameterResolver);
     }
 }

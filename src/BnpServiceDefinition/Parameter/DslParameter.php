@@ -1,17 +1,9 @@
 <?php
 
-namespace BnpServiceDefinition\Reference;
+namespace BnpServiceDefinition\Parameter;
 
-class DslReference implements ReferenceInterface
+class DslParameter implements ParameterInterface
 {
-    /**
-     * @return string
-     */
-    public static function getType()
-    {
-        return 'dsl';
-    }
-
     /**
      * @param $definition array|string
      * @return string BnpServiceDefinition\Dsl\Language compatible
