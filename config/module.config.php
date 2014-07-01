@@ -5,9 +5,6 @@ return array(
         'definition_aware_containers' => array(
             'ControllerManager' => 'controller_manager'
         ),
-        'dump_directory' => './data/bnp-service-definition',
-        'dump_abstract_factories_namespace' => 'BnpServiceDefinition\Generated',
-        'dump_factories' => true
     ),
     'service_manager' => array(
         'invokables' => array(

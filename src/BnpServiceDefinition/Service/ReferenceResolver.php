@@ -31,7 +31,7 @@ class ReferenceResolver extends AbstractPluginManager
         }
     }
 
-    public function resolveReference($parameter)
+    public function resolveReference($parameter, $compile = true)
     {
         if (! is_array($parameter)) {
             $parameter = array('type' => $this->defaultResolvedType, 'value' => $parameter);
@@ -41,6 +41,14 @@ class ReferenceResolver extends AbstractPluginManager
             throw new \RuntimeException();
         }
 
+        if (! $compile) {
+            if (! array_key_exists('order', $parameter)) {
+                $parameter['order'] = 0;
+            }
+
+            return $parameter;
+        }
+
         /** @var $reference ReferenceInterface */
         $reference = $this->get($parameter['type']);
         return $reference->compile($parameter['value']);
@@ -48,6 +56,14 @@ class ReferenceResolver extends AbstractPluginManager
 
     public function resolveReferences(array $parameters = array())
     {
+        foreach ($parameters as &$parameter) {
+            $parameter = $this->resolveReference($parameter, false);
+        }
+
+        usort($parameters, function ($first, $second) {
+            return $first['order'] == $second['order'] ? 0 : ($first['order'] > $second['order'] ? 1 : -1);
+        });
+
         return array_map(array($this, 'resolveReference'), $parameters);
     }
 

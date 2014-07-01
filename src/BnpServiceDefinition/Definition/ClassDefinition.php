@@ -14,7 +14,7 @@ class ClassDefinition
     /**
      * @var array
      */
-    protected $arguments = array();
+    protected $args = array();
 
     /**
      * @var array
@@ -113,18 +113,17 @@ class ClassDefinition
     /**
      * @param array $arguments
      */
-    public function setArguments($arguments)
+    public function setArgs($arguments)
     {
-        $this->arguments = $arguments;
+        $this->args = $arguments;
     }
 
     /**
      * @return array
      */
-    public function getArguments()
+    public function getArgs()
     {
-        ksort($this->arguments);
-        return $this->arguments;
+        return $this->args;
     }
 
     /**

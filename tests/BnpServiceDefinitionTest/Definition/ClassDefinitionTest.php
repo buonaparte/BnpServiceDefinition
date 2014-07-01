@@ -13,8 +13,8 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\ClassDefinition', $definition);
         $this->assertNull($definition->getClass());
-        $this->assertInternalType('array', $definition->getArguments());
-        $this->assertEmpty($definition->getArguments());
+        $this->assertInternalType('array', $definition->getArgs());
+        $this->assertEmpty($definition->getArgs());
         $this->assertNull($definition->getParent());
         $this->assertInternalType('array', $definition->getMethodCalls());
         $this->assertEmpty($definition->getMethodCalls());

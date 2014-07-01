@@ -42,7 +42,7 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
         $definition = $repo->getServiceDefinition('second');
         $this->assertInstanceOf('BnpServiceDefinition\Definition\ClassDefinition', $definition);
         $this->assertEquals('anotherClass', $definition->getClass());
-        $this->assertEquals(array('firstArg'), $definition->getArguments());
+        $this->assertEquals(array('firstArg'), $definition->getArgs());
     }
 
     public function testCanMergeConstructorArgumentsDefinitionsWithParent()
@@ -68,11 +68,11 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $second = $repo->getServiceDefinition('second');
         $this->assertEquals('SomeClass', $second->getClass());
-        $this->assertEquals(array('first', 'second'), $second->getArguments());
+        $this->assertEquals(array('first', 'second'), $second->getArgs());
 
         $fourth = $repo->getServiceDefinition('fourth');
         $this->assertEquals('SomeClass', $fourth->getClass());
-        $this->assertEquals(array('second'), array_values($fourth->getArguments()));
+        $this->assertEquals(array('second'), array_values($fourth->getArgs()));
     }
 
     public function testCanMergeMethodCallParametersWithParent()

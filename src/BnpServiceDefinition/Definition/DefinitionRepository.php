@@ -104,7 +104,7 @@ class DefinitionRepository implements \IteratorAggregate
     {
         $compositeDefinition = array(
             'class' => null,
-            'arguments' => array(),
+            'args' => array(),
             'method_calls' => array(),
             'abstract' => array()
         );
@@ -115,9 +115,9 @@ class DefinitionRepository implements \IteratorAggregate
                 $compositeDefinition['class'] = $class;
             }
 
-            $compositeDefinition['arguments'] = array_merge(
-                $compositeDefinition['arguments'],
-                $definition->getArguments()
+            $compositeDefinition['args'] = array_merge(
+                $compositeDefinition['args'],
+                $definition->getArgs()
             );
 
             foreach ($definition->getMethodCalls() as $method) {

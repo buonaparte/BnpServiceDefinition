@@ -29,11 +29,6 @@ class DefinitionOptions extends AbstractOptions
     protected $dumpDirectory;
 
     /**
-     * @var string
-     */
-    protected $dumpedAbstractFactoriesNamespace;
-
-    /**
      * @param string $configPathSeparator
      */
     public function setConfigPathSeparator($configPathSeparator)
@@ -79,22 +74,6 @@ class DefinitionOptions extends AbstractOptions
     public function getDumpDirectory()
     {
         return $this->dumpDirectory;
-    }
-
-    /**
-     * @param string $dumpedAbstractFactoriesNamespace
-     */
-    public function setDumpedAbstractFactoriesNamespace($dumpedAbstractFactoriesNamespace)
-    {
-        $this->dumpedAbstractFactoriesNamespace = $dumpedAbstractFactoriesNamespace;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDumpedAbstractFactoriesNamespace()
-    {
-        return $this->dumpedAbstractFactoriesNamespace;
     }
 
     /**

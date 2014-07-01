@@ -56,14 +56,6 @@ class Generator
         $classFile = new FileGenerator();
         $classFile->setClass($this->generateAbstractFactoryClass($repository));
 
-        if ($this->options->getDumpedAbstractFactoriesNamespace()) {
-            $classFile->setNamespace($this->options->getDumpedAbstractFactoriesNamespace());
-        }
-
-        if (null !== $this->options->getDumpedAbstractFactoriesNamespace()) {
-            $classFile->setNamespace($this->options->getDumpedAbstractFactoriesNamespace());
-        }
-
         if (null !== $filename) {
             $classFile->setFilename($filename);
         }
@@ -353,7 +345,7 @@ TEMPLATE;
             $methodCalls = "\n$methodCalls\n";
         }
 
-        $arguments = implode(', ', $this->compileReferences($definition->getArguments()));
+        $arguments = implode(', ', $this->compileReferences($definition->getArgs()));
 
         return
 <<<TEMPLATE

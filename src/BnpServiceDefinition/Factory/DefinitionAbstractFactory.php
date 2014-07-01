@@ -82,9 +82,6 @@ class DefinitionAbstractFactory implements
                     : $this->definitionRepository->getChecksum()
             );
         $factory->class = sprintf('BnpGeneratedAbstractFactory_%s', $this->definitionRepository->getChecksum());
-        if (null !== $this->options->getDumpedAbstractFactoriesNamespace()) {
-            $factory->class = rtrim($this->options->getDumpedAbstractFactoriesNamespace(), '\\') . $factory->class;
-        }
 
         return $factory;
     }
@@ -102,26 +99,6 @@ class DefinitionAbstractFactory implements
         if ($this->generatedFactoryAttached) {
             return false;
         }
-
-        if (! $this->getOptions($serviceLocator)->getDumpFactories()) {
-            return $this->definitionRepository->hasDefinition($requestedName);
-        }
-
-        $factory = $this->getGeneratedFactory();
-        if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
-            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->write();
-        }
-
-        require_once $factory->filename;
-
-        $factoryClass = $factory->class;
-        /** @var $factoryInstance ServiceLocatorAwareInterface */
-        $factoryInstance = new $factoryClass($this->scopeName);
-        $factoryInstance->setServiceLocator($this->getServiceLocator());
-
-        /** @var $serviceLocator ServiceManager */
-        $serviceLocator->addAbstractFactory($factoryInstance);
-        $this->generatedFactoryAttached = true;
 
         return $this->definitionRepository->hasDefinition($requestedName);
     }
@@ -200,9 +177,34 @@ class DefinitionAbstractFactory implements
             : array();
     }
 
+    protected function attachGeneratedFactory(ServiceLocatorInterface $serviceLocator)
+    {
+        if ($this->generatedFactoryAttached || null === $this->definitionRepository
+            || ! $this->getOptions()->getDumpFactories()
+        ) {
+            return;
+        }
+
+        $factory = $this->getGeneratedFactory();
+        if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
+            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->write();
+        }
+
+        require_once $factory->filename;
+
+        $factoryClass = $factory->class;
+        /** @var $factoryInstance ServiceLocatorAwareInterface */
+        $factoryInstance = new $factoryClass($this->scopeName);
+        $factoryInstance->setServiceLocator($this->getServiceLocator());
+
+        /** @var $serviceLocator ServiceManager */
+        $serviceLocator->addAbstractFactory($factoryInstance);
+        $this->generatedFactoryAttached = true;
+    }
+
     public function init()
     {
-        if (null !== $this->definitionRepository) {
+        if ($this->generatedFactoryAttached || null !== $this->definitionRepository) {
             return;
         }
 
@@ -214,6 +216,7 @@ class DefinitionAbstractFactory implements
                 throw new \InvalidArgumentException(sprintf('Inner service locator %s not found', $container));
             }
 
+            /** @var $serviceManager ServiceManager */
             if (! ($serviceManager = $services->get($container)) instanceof ServiceManager) {
                 throw new \InvalidArgumentException(sprintf(
                     'Inner service locator %s must be an instance of ServiceManager', $container));
@@ -221,12 +224,14 @@ class DefinitionAbstractFactory implements
 
             $factory = new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig)), $container);
             $factory->setServiceLocator($this->getServiceLocator());
+            $factory->attachGeneratedFactory($serviceManager);
 
             /** @var $serviceManager ServiceManager */
             $serviceManager->addAbstractFactory($factory, false);
         }
 
         $this->definitionRepository = new DefinitionRepository($this->getDefinitionsConfig('service_manager'));
+        $this->attachGeneratedFactory($services);
     }
 
     /**

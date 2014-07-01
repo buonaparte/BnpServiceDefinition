@@ -38,7 +38,7 @@ class Evaluator
         }
 
         $reflection = new \ReflectionClass($className);
-        $service = $reflection->newInstanceArgs($this->evaluateArguments($definition->getArguments()));
+        $service = $reflection->newInstanceArgs($this->evaluateArguments($definition->getArgs()));
 
         $context = array('service' => $service);
         foreach (array_values($definition->getMethodCalls()) as $i => $methodCall) {
@@ -85,12 +85,12 @@ class Evaluator
 
     protected function evaluateArguments(array $args, array $context = array())
     {
-        $self = $this;
+        $language = $this->language;
         return array_map(
-            function ($arg) use ($self, $context) {
-                return $self->evaluateArgument($arg, $context);
+            function ($arg) use ($language, $context) {
+                return $language->evaluate($arg, $context);
             },
-            $args
+            $this->referenceResolver->resolveReferences($args)
         );
     }
 }
