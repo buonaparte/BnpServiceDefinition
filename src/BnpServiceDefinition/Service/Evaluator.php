@@ -3,7 +3,7 @@
 namespace BnpServiceDefinition\Service;
 
 use BnpServiceDefinition\Definition\DefinitionRepository;
-use BnpServiceDefinition\Definition\MethodDefinition;
+use BnpServiceDefinition\Definition\MethodCallDefinition;
 use BnpServiceDefinition\Dsl\Language;
 
 class Evaluator
@@ -38,13 +38,13 @@ class Evaluator
         }
 
         $reflection = new \ReflectionClass($className);
-        $service = $reflection->newInstanceArgs($this->evaluateArguments($definition->getArgs()));
+        $service = $reflection->newInstanceArgs($this->evaluateArguments($definition->getArguments()));
 
         $context = array('service' => $service);
         foreach (array_values($definition->getMethodCalls()) as $i => $methodCall) {
-            /** @var $methodCall MethodDefinition */
-            if (null !== $methodCall->getCondition()) {
-                foreach ($methodCall->getCondition() as $condition) {
+            /** @var $methodCall MethodCallDefinition */
+            if (null !== $methodCall->getConditions()) {
+                foreach ($methodCall->getConditions() as $condition) {
                     if ('true' !== $this->evaluateArgument($condition, $context)) {
                         continue 2;
                     }

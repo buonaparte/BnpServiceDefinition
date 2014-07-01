@@ -105,7 +105,7 @@ class DefinitionRepository implements \IteratorAggregate
         $compositeDefinition = array(
             'class' => null,
             'args' => array(),
-            'method_calls' => array(),
+            'calls' => array(),
             'abstract' => array()
         );
 
@@ -117,39 +117,39 @@ class DefinitionRepository implements \IteratorAggregate
 
             $compositeDefinition['args'] = array_merge(
                 $compositeDefinition['args'],
-                $definition->getArgs()
+                $definition->getArguments()
             );
 
             foreach ($definition->getMethodCalls() as $method) {
-                /** @var $method MethodDefinition */
+                /** @var $method MethodCallDefinition */
                 foreach ($compositeDefinition['method_calls'] as $k => $hasMethodCall) {
-                    /** @var $hasMethodCall MethodDefinition */
+                    /** @var $hasMethodCall MethodCallDefinition */
                     if ($hasMethodCall->getName() == $method->getName()) {
                         $methodCallSpecs = array(
                             'name' => $method->getName(),
                             'params' => array_merge($hasMethodCall->getParams(), $method->getParams()),
-                            'condition' => null
+                            'conditions' => null
                         );
 
-                        if (null !== $hasMethodCall->getCondition()) {
-                            $methodCallSpecs['condition'] = $hasMethodCall->getCondition();
+                        if (null !== $hasMethodCall->getConditions()) {
+                            $methodCallSpecs['conditions'] = $hasMethodCall->getConditions();
                         }
 
-                        if (null !== $method->getCondition() && null !== $methodCallSpecs['condition']) {
-                            $methodCallSpecs['condition'] = array_merge(
-                                $methodCallSpecs['condition'],
-                                $method->getCondition()
+                        if (null !== $method->getConditions() && null !== $methodCallSpecs['conditions']) {
+                            $methodCallSpecs['conditions'] = array_merge(
+                                $methodCallSpecs['conditions'],
+                                $method->getConditions()
                             );
-                        } elseif (null === $methodCallSpecs['condition']) {
-                            $methodCallSpecs['condition'] = $method->getCondition();
+                        } elseif (null === $methodCallSpecs['conditions']) {
+                            $methodCallSpecs['conditions'] = $method->getConditions();
                         }
 
-                        $compositeDefinition['method_calls'][$k] = MethodDefinition::fromArray($methodCallSpecs);
+                        $compositeDefinition['calls'][$k] = MethodCallDefinition::fromArray($methodCallSpecs);
                         continue 2;
                     }
                 }
 
-                $compositeDefinition['method_calls'][] = $method;
+                $compositeDefinition['calls'][] = $method;
             }
 
             $compositeDefinition['abstract'] = $definition->getAbstract();

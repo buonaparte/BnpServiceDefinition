@@ -2,8 +2,6 @@
 
 namespace BnpServiceDefinition\Definition;
 
-use Zend\Stdlib\Hydrator\ClassMethods;
-
 class ClassDefinition
 {
     /**
@@ -14,7 +12,7 @@ class ClassDefinition
     /**
      * @var array
      */
-    protected $args = array();
+    protected $arguments = array();
 
     /**
      * @var array
@@ -37,8 +35,36 @@ class ClassDefinition
      */
     public static function fromArray(array $definition)
     {
-        $hydrator = new ClassMethods();
-        return $hydrator->hydrate($definition, new static());
+        $class = new self();
+        foreach ($definition as $name => $value) {
+            // normalize key
+            switch (strtolower(str_replace(array('.', '-', '_'), '', $name))) {
+
+                case 'class':
+                    $class->setClass($value);
+                    break;
+
+                case 'args':
+                case 'arguments':
+                    $class->setArguments($value);
+                    break;
+
+                case 'abstract':
+                    $class->setAbstract($value);
+                    break;
+
+                case 'parent':
+                    $class->setParent($value);
+                    break;
+
+                case 'calls':
+                case 'methodcalls':
+                    $class->setMethodCalls($value);
+                    break;
+            }
+        }
+
+        return $class;
     }
 
     /**
@@ -78,7 +104,7 @@ class ClassDefinition
 
     public function addMethodCall($method)
     {
-        if ($method instanceof MethodDefinition) {
+        if ($method instanceof MethodCallDefinition) {
             $this->methodCalls[] = $method;
             return $this;
         }
@@ -90,7 +116,9 @@ class ClassDefinition
             ));
         }
 
-        $this->methodCalls[] = is_string($method) ? new MethodDefinition($method) : MethodDefinition::fromArray($method);
+        $this->methodCalls[] = is_string($method)
+            ? new MethodCallDefinition($method)
+            : MethodCallDefinition::fromArray($method);
         return $this;
     }
 
@@ -113,17 +141,17 @@ class ClassDefinition
     /**
      * @param array $arguments
      */
-    public function setArgs($arguments)
+    public function setArguments($arguments)
     {
-        $this->args = $arguments;
+        $this->arguments = $arguments;
     }
 
     /**
      * @return array
      */
-    public function getArgs()
+    public function getArguments()
     {
-        return $this->args;
+        return $this->arguments;
     }
 
     /**

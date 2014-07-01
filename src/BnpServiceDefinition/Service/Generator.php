@@ -4,7 +4,7 @@ namespace BnpServiceDefinition\Service;
 
 use BnpServiceDefinition\Definition\ClassDefinition;
 use BnpServiceDefinition\Definition\DefinitionRepository;
-use BnpServiceDefinition\Definition\MethodDefinition;
+use BnpServiceDefinition\Definition\MethodCallDefinition;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\Service\ReferenceResolver;
@@ -337,7 +337,7 @@ TEMPLATE;
     {
         $methodCalls = '';
         foreach (array_values($definition->getMethodCalls()) as $i => $methodCall) {
-            /** @var $methodCall MethodDefinition */
+            /** @var $methodCall MethodCallDefinition */
             $methodCalls .= "\n" . $this->getFactoryMethodCallBody($methodCall, $i);
         }
 
@@ -345,7 +345,7 @@ TEMPLATE;
             $methodCalls = "\n$methodCalls\n";
         }
 
-        $arguments = implode(', ', $this->compileReferences($definition->getArgs()));
+        $arguments = implode(', ', $this->compileReferences($definition->getArguments()));
 
         return
 <<<TEMPLATE
@@ -370,15 +370,15 @@ return \$service;
 TEMPLATE;
     }
 
-    protected function getFactoryMethodCallBody(MethodDefinition $method, $methodIndex)
+    protected function getFactoryMethodCallBody(MethodCallDefinition $method, $methodIndex)
     {
         $context = array('service');
 
         $condition = 'true';
-        if (null !== $method->getCondition()) {
+        if (null !== $method->getConditions()) {
             $conditions = implode(
                 ' and ',
-                $this->referenceResolver->resolveReferences($method->getCondition())
+                $this->referenceResolver->resolveReferences($method->getConditions())
             );
             $condition = $this->compileDslPart($conditions, $context);
         }

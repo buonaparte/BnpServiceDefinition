@@ -2,33 +2,33 @@
 
 namespace BnpServiceDefinitionTest\Definition;
 
-use BnpServiceDefinition\Definition\MethodDefinition;
+use BnpServiceDefinition\Definition\MethodCallDefinition;
 
 class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
 {
     public function testWithDefaults()
     {
-        $definition = new MethodDefinition('setSomething');
+        $definition = new MethodCallDefinition('setSomething');
 
         $this->assertInternalType('array', $definition->getParams());
         $this->assertEmpty($definition->getParams());
-        $this->assertNull($definition->getCondition());
+        $this->assertNull($definition->getConditions());
     }
 
     public function testSingleConditionGetsRepresentedByArray()
     {
-        $definition = new MethodDefinition('setSomething', array(), 'somethingIsTrue');
+        $definition = new MethodCallDefinition('setSomething', array(), 'somethingIsTrue');
 
-        $this->assertInternalType('array', $definition->getCondition());
-        $this->assertNotEmpty($definition->getCondition());
+        $this->assertInternalType('array', $definition->getConditions());
+        $this->assertNotEmpty($definition->getConditions());
 
-        $conditions = $definition->getCondition();
+        $conditions = $definition->getConditions();
         $this->assertEquals('somethingIsTrue', $conditions[0]);
     }
 
     public function testInstanceFromArraySpecs()
     {
-        $definition = MethodDefinition::fromArray(array(
+        $definition = MethodCallDefinition::fromArray(array(
             'name' => 'someSetter',
             'params' => array('setterArg'),
             'condition' => 'somethingIsFalse'
@@ -37,7 +37,7 @@ class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $definition);
         $this->assertEquals('someSetter', $definition->getName());
         $this->assertEquals(array('setterArg'), $definition->getParams());
-        $this->assertEquals(array('somethingIsFalse'), $definition->getCondition());
+        $this->assertEquals(array('somethingIsFalse'), $definition->getConditions());
     }
 
     /**
@@ -45,7 +45,7 @@ class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromArrayMethodThrowsExceptionOnNoName()
     {
-        MethodDefinition::fromArray(array(
+        MethodCallDefinition::fromArray(array(
             'params' => array()
         ));
     }

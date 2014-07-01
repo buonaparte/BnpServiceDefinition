@@ -3,7 +3,7 @@
 namespace BnpServiceDefinitionTest\Definition;
 
 use BnpServiceDefinition\Definition\ClassDefinition;
-use BnpServiceDefinition\Definition\MethodDefinition;
+use BnpServiceDefinition\Definition\MethodCallDefinition;
 
 class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,8 +13,8 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\ClassDefinition', $definition);
         $this->assertNull($definition->getClass());
-        $this->assertInternalType('array', $definition->getArgs());
-        $this->assertEmpty($definition->getArgs());
+        $this->assertInternalType('array', $definition->getArguments());
+        $this->assertEmpty($definition->getArguments());
         $this->assertNull($definition->getParent());
         $this->assertInternalType('array', $definition->getMethodCalls());
         $this->assertEmpty($definition->getMethodCalls());
@@ -46,13 +46,13 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($definition->getMethodCalls());
 
         $methodCalls = $definition->getMethodCalls();
-        /** @var $methodCall MethodDefinition */
+        /** @var $methodCall MethodCallDefinition */
         $methodCall = $methodCalls[0];
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $methodCall);
         $this->assertEquals('someSetter', $methodCall->getName());
         $this->assertEquals(array('setterArg'), $methodCall->getParams());
-        $this->assertEquals(array('somethingIsTrue'), $methodCall->getCondition());
+        $this->assertEquals(array('somethingIsTrue'), $methodCall->getConditions());
     }
 
     public function testFromArrayCreatesMethodDefinitionsFromOnlyNameSpec()
@@ -65,9 +65,9 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         ));
 
         $methodCalls = $definition->getMethodCalls();
-        /** @var $firstCall MethodDefinition */
+        /** @var $firstCall MethodCallDefinition */
         $firstCall = $methodCalls[0];
-        /** @var $secondCall MethodDefinition */
+        /** @var $secondCall MethodCallDefinition */
         $secondCall = $methodCalls[1];
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $firstCall);
