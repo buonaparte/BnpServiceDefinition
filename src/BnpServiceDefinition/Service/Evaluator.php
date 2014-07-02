@@ -5,6 +5,7 @@ namespace BnpServiceDefinition\Service;
 use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodCallDefinition;
 use BnpServiceDefinition\Dsl\Language;
+use BnpServiceDefinition\Exception;
 
 class Evaluator
 {
@@ -53,14 +54,14 @@ class Evaluator
 
             $method = $this->evaluateArgument($methodCall->getName(), $context);
             if (! is_string($method)) {
-                throw new \RuntimeException(sprintf(
+                throw new Exception\RuntimeException(sprintf(
                     'A method call can only be a string, %s provided, as %d method call for the %s service definition',
                     gettype($method),
                     $i + 1,
                     $definitionName
                 ));
             } elseif (! method_exists($service, $method)) {
-                throw new \RuntimeException(sprintf(
+                throw new Exception\RuntimeException(sprintf(
                     'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
                     get_class($service),
                     $method,

@@ -3,9 +3,10 @@
 namespace BnpServiceDefinition\Service;
 
 use BnpServiceDefinition\Parameter\ParameterInterface;
+use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
-use Zend\ServiceManager\Exception;
+use Zend\ServiceManager\Exception as ServiceManagerException;
 
 class ParameterResolver extends AbstractPluginManager
 {
@@ -38,7 +39,9 @@ class ParameterResolver extends AbstractPluginManager
         }
 
         if (! is_array($parameter) || empty($parameter['type']) || ! array_key_exists('value', $parameter)) {
-            throw new \RuntimeException();
+            throw new Exception\InvalidArgumentException(
+                'Parameter to resolve must be an array containing at least type and value specified'
+            );
         }
 
         if (! $compile) {
@@ -69,12 +72,15 @@ class ParameterResolver extends AbstractPluginManager
 
     /**
      * @param string $defaultResolvedType
-     * @throws Exception\RuntimeException
+     * @throws ServiceManagerException\RuntimeException
      */
     public function setDefaultResolvedType($defaultResolvedType)
     {
         if (! $this->has($defaultResolvedType)) {
-            throw new Exception\RuntimeException(sprintf('undefined type (unknown plugin) %s', $defaultResolvedType));
+            throw new ServiceManagerException\RuntimeException(sprintf(
+                'undefined type (unknown plugin) %s',
+                $defaultResolvedType
+            ));
         }
 
         $this->defaultResolvedType = $defaultResolvedType;
@@ -96,12 +102,12 @@ class ParameterResolver extends AbstractPluginManager
      *
      * @param  mixed $plugin
      * @return void
-     * @throws Exception\RuntimeException if invalid
+     * @throws ServiceManagerException\RuntimeException if invalid
      */
     public function validatePlugin($plugin)
     {
         if (! $plugin instanceof ParameterInterface) {
-            throw new Exception\RuntimeException(sprintf(
+            throw new ServiceManagerException\RuntimeException(sprintf(
                 '%s expects retrieving a valid %s instance, %s resolved',
                 get_class($this),
                 'ReferenceInterface',

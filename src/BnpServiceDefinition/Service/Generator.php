@@ -7,11 +7,9 @@ use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodCallDefinition;
 use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Options\DefinitionOptions;
-use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\Code\Generator\ClassGenerator;
 use Zend\Code\Generator\DocBlock\Tag\ParamTag;
 use Zend\Code\Generator\DocBlock\Tag\ReturnTag;
-use Zend\Code\Generator\DocBlockGenerator;
 use Zend\Code\Generator\FileGenerator;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\Code\Generator\ParameterGenerator;
@@ -33,11 +31,6 @@ class Generator
      * @var Language
      */
     protected $language;
-
-    /**
-     * @var array
-     */
-    protected $immutableRegisteredMethods = array('canCreateServiceWithName', 'createServiceWithName');
 
     /**
      * @var array
@@ -68,8 +61,8 @@ class Generator
         $class = ClassGenerator::fromArray(array(
             'name' => sprintf('BnpGeneratedAbstractFactory_%s', $repository->getChecksum()),
             'implemented_interfaces' => array(
-                'Zend\ServiceManager\AbstractFactoryInterface',
-                'Zend\ServiceManager\ServiceLocatorAwareInterface'
+                '\Zend\ServiceManager\AbstractFactoryInterface',
+                '\Zend\ServiceManager\ServiceLocatorAwareInterface'
             ),
             'properties' => array(
                 PropertyGenerator::fromArray(array(
@@ -79,7 +72,7 @@ class Generator
                         'tags' => array(
                             array(
                                 'name' => 'var',
-                                'content' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                                'content' => '\Zend\ServiceManager\ServiceLocatorInterface'
                             )
                         )
                     )
@@ -119,7 +112,7 @@ class Generator
                     'parameters' => array(
                         ParameterGenerator::fromArray(array(
                             'name' => 'serviceLocator',
-                            'type' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                            'type' => '\Zend\ServiceManager\ServiceLocatorInterface'
                         )),
                         'name',
                         'requestedName',
@@ -128,8 +121,8 @@ class Generator
                         'short_description' => 'Determine if we can create a service with name',
                         'tags' => array(
                             new ParamTag(
-                                'serviceLocatorInterface',
-                                array('Zend\ServiceManager\ServiceLocatorInterface')
+                                'serviceLocator',
+                                array('\Zend\ServiceManager\ServiceLocatorInterface')
                             ),
                             new ParamTag(
                                 'name',
@@ -152,7 +145,7 @@ class Generator
                     'parameters' => array(
                         ParameterGenerator::fromArray(array(
                             'name' => 'serviceLocator',
-                            'type' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                            'type' => '\Zend\ServiceManager\ServiceLocatorInterface'
                         )),
                         'name',
                         'requestedName',
@@ -161,8 +154,8 @@ class Generator
                         'short_description' => 'Create service with name',
                         'tags' => array(
                             new ParamTag(
-                                'serviceLocatorInterface',
-                                array('Zend\ServiceManager\ServiceLocatorInterface')
+                                'serviceLocator',
+                                array('\Zend\ServiceManager\ServiceLocatorInterface')
                             ),
                             new ParamTag(
                                 'name',
@@ -185,7 +178,7 @@ class Generator
                     'parameters' => array(
                         ParameterGenerator::fromArray(array(
                             'name' => 'serviceLocator',
-                            'type' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                            'type' => '\Zend\ServiceManager\ServiceLocatorInterface'
                         ))
                     ),
                     'docblock' => array(
@@ -206,7 +199,7 @@ class Generator
                         'tags' => array(
                             array(
                                 'name' => 'return',
-                                'content' => 'Zend\ServiceManager\ServiceLocatorInterface'
+                                'content' => '\Zend\ServiceManager\ServiceLocatorInterface'
                             )
                         )
                     ),
@@ -227,11 +220,7 @@ class Generator
 
         $definitionName = 'get' . ucfirst($this->getDefinitionCanonicalName($definitionName));
         $i = 0;
-        while (
-            array_key_exists($definitionName, $this->immutableRegisteredMethods)
-            ||
-            array_key_exists($definitionName, $this->definitionFactoryMethods)
-        ) {
+        while (array_key_exists($definitionName, $this->definitionFactoryMethods)) {
             $definitionName .= ++$i;
         }
 
@@ -351,13 +340,13 @@ TEMPLATE;
 <<<TEMPLATE
 \$serviceClassName = {$this->compileParameter($definition->getClass())};
 if (! is_string(\$serviceClassName)) {
-    throw new \RuntimeException(sprintf(
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
         '%s definition class was not resolved to a string',
         \$definitionName
     ));
 }
 if (! class_exists(\$serviceClassName, true)) {
-    throw new \RuntimeException(sprintf(
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
         '%s definition resolved to the class %s, which does no exit',
         \$definitionName,
         \$serviceClassName
@@ -390,14 +379,14 @@ TEMPLATE;
 if ($condition) {
     \$serviceMethod = {$this->compileParameter($method->getName(), $context)};
     if (! is_string(\$serviceMethod)) {
-        throw new \RuntimeException(sprintf(
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
             'A method call can only be a string, %s provided, as %d method call for the %s service definition',
             gettype(\$serviceMethod),
             $methodIndex,
             \$definitionName
         ));
     } elseif (! method_exists(\$service, \$serviceMethod)) {
-        throw new \RuntimeException(sprintf(
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
             'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
             get_class(\$service),
             \$serviceMethod,
