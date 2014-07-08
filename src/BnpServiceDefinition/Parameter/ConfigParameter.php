@@ -17,6 +17,8 @@ class ConfigParameter implements ParameterInterface
     {
         if ($definition instanceof \Traversable) {
             $definition = ArrayUtils::iteratorToArray($definition);
+        } elseif (is_string($definition)) {
+            $definition = array($definition);
         }
 
         if (! is_array($definition) || empty($definition)) {

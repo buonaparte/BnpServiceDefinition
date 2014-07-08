@@ -60,7 +60,7 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1', $this->resolver->resolveParameter(1));
 
         $this->resolver->setDefaultResolvedType('config');
-        $this->assertEquals("config('some_config')", $this->resolver->resolveParameter('some_config'));
+        $this->assertEquals("config(['some_config'])", $this->resolver->resolveParameter('some_config'));
 
         $this->resolver->setDefaultResolvedType('service');
         $this->assertEquals("service('some_service')", $this->resolver->resolveParameter('some_service'));
@@ -70,27 +70,23 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
     {
         $reference = $this->getMock('BnpServiceDefinition\Parameter\ParameterInterface');
 
-        $reference::staticExpects($this->any())
-            ->method('getType')
-            ->will($this->returnValue('some_type'));
-
         $reference->expects($this->any())
             ->method('compile')
             ->will($this->returnValue('true'));
 
         $this->resolver->setService(get_class($reference), $reference);
-        $this->resolver->setAlias(call_user_func(array(get_class($reference), 'getType')), get_class($reference));
+        $this->resolver->setAlias('mock', get_class($reference));
 
         $this->assertInstanceOf(get_class($reference), $this->resolver->get(get_class($reference)));
         $this->assertInstanceOf(
             get_class($reference),
-            $this->resolver->get(call_user_func(array(get_class($reference), 'getType')))
+            $this->resolver->get('mock')
         );
 
         $this->assertEquals(
             'true',
             $this->resolver->resolveParameter(array(
-                'type' => call_user_func(array(get_class($reference), 'getType')),
+                'type' => 'mock',
                 'value' => 'ignorable_value'
             ))
         );

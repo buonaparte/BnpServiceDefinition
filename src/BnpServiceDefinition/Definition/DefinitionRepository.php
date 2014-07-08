@@ -122,7 +122,7 @@ class DefinitionRepository implements \IteratorAggregate
 
             foreach ($definition->getMethodCalls() as $method) {
                 /** @var $method MethodCallDefinition */
-                foreach ($compositeDefinition['method_calls'] as $k => $hasMethodCall) {
+                foreach ($compositeDefinition['calls'] as $k => $hasMethodCall) {
                     /** @var $hasMethodCall MethodCallDefinition */
                     if ($hasMethodCall->getName() == $method->getName()) {
                         $methodCallSpecs = array(

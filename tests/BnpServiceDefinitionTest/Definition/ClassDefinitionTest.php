@@ -104,7 +104,7 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         /** @var $methodCall MethodCallDefinition */
         $methodCall = $methodCalls[0];
 
-        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $methodCall);
+        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodCallDefinition', $methodCall);
         $this->assertEquals('someSetter', $methodCall->getName());
         $this->assertEquals(array('setterArg'), $methodCall->getParameters());
         $this->assertEquals(array('somethingIsTrue'), $methodCall->getConditions());
@@ -125,8 +125,8 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         /** @var $secondCall MethodCallDefinition */
         $secondCall = $methodCalls[1];
 
-        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $firstCall);
-        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $secondCall);
+        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodCallDefinition', $firstCall);
+        $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodCallDefinition', $secondCall);
         $this->assertEquals('firstSetter', $firstCall->getName());
         $this->assertEquals('secondSetter', $secondCall->getName());
     }

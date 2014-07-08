@@ -22,7 +22,7 @@ class ServiceParameterTest extends \PHPUnit_Framework_TestCase
         $unQuotedDefinition = "someone's_service";
 
         $this->assertEquals("service('some_service')", $this->serviceReference->compile($definition));
-        $this->assertEquals("service('someone\\'s_service')", $this->serviceReference->compile($unQuotedDefinition));
+        $this->assertEquals("service('someone\\\'s_service')", $this->serviceReference->compile($unQuotedDefinition));
     }
 
     public function testWillThrowExceptionOnUnsupportedDefinition()
@@ -40,7 +40,7 @@ class ServiceParameterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(count($definitions), count($exceptions));
         foreach ($exceptions as $e) {
-            $this->assertInstanceOf('BnpServiceDefinition\Reference\Exception\InvalidArgumentException', $e);
+            $this->assertInstanceOf('BnpServiceDefinition\Exception\InvalidArgumentException', $e);
         }
     }
 }

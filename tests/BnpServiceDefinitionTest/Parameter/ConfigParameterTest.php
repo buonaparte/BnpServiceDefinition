@@ -17,24 +17,12 @@ class ConfigParameterTest extends \PHPUnit_Framework_TestCase
         $this->configReference = new ConfigParameter();
     }
 
-    public function testCompileByProvidingStringConfigPath()
-    {
-        $definition = 'path:to:a:nested_config';
-        $unQuotedDefinition = "path:to:a:nested's_config";
-
-        $this->assertEquals("config('path:to:a:nested_config')", $this->configReference->compile($definition));
-        $this->assertEquals(
-            "config('path:to:a:nested\\'s_config')",
-            $this->configReference->compile($unQuotedDefinition)
-        );
-    }
-
     public function testCompileByProvidingValidArrayPathConfigPath()
     {
         $definition = array('path', 'to', 'a', 'nested_config', 'un \'quoted');
 
         $this->assertEquals(
-            "config(['path', 'to', 'a', 'nested_config', 'un \\'quoted'])",
+            "config(['path', 'to', 'a', 'nested_config', 'un \\\'quoted'])",
             $this->configReference->compile($definition)
         );
     }

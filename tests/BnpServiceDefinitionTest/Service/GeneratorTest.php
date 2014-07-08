@@ -57,58 +57,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     public function testCanGenerateEmptyDefinitions()
     {
         $this->generator->generate(new DefinitionRepository(array(
-            'first' => array(
-                'abstract' => true,
-                'class' => array('type' => 'service', 'value' => 'something_from_a_service'),
-                'arguments' => array('firstParameter', 'secondParameter'),
-                'method_calls' => array(
-                    array(
-                        'name' => 'setSomething',
-                        'params' => array(array('type' => 'config', 'value' => 'some:nested:config'))
-                    ),
-                    array(
-                        'name' => 'setSomethingElse',
-                        'params' => array('somethingElse')
-                    )
-                )
-            ),
-            'second' => array(
-                'abstract' => 'true',
-                'parent' => 'first',
-                'class' => array('type' => 'service', 'value' => 'something_from_a_service'),
-                'arguments' => array('firstParameter', 'secondParameter'),
-                'method_calls' => array(
-                    array(
-                        'name' => 'setSomething',
-                        'params' => array(array('type' => 'config', 'value' => 'some:nested:config'))
-                    ),
-                    array(
-                        'name' => 'setSomethingElse',
-                        'params' => array('somethingElse'),
-                        'condition' => array(
-                            array('type' => 'config', 'value' => 'some:variable:from:nested:config'),
-                        )
-                    )
-                )
-            ),
-            'second#' => array(
-                'parent' => 'second',
-                'class' => array('type' => 'service', 'value' => 'something_from_a_service'),
-                'arguments' => array('firstParameter', 'secondParameter'),
-                'method_calls' => array(
-                    array(
-                        'name' => 'setSomething',
-                        'params' => array(array('type' => 'config', 'value' => 'some:nested:config'))
-                    ),
-                    array(
-                        'name' => 'setSomethingElse',
-                        'params' => array('somethingElse'),
-                        'condition' => array(
-                            array('type' => 'config', 'value' => 'some:variable:from:nested:config'),
-                        )
-                    )
-                )
-            )
         )));
 
         $this->assertTrue(true);

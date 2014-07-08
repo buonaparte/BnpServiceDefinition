@@ -139,26 +139,6 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value1', $config['key2']);
     }
 
-    public function testEvaluationWithNestedConfig()
-    {
-        $this->overrideConfig(array(
-            'key1' => array(
-                'key2' => array(
-                    'key3' => 'value'
-                )
-            )
-        ));
-
-        $this->assertNotNull($this->language->evaluate("config('key1')"));
-
-        $this->assertNull($this->language->evaluate("config('key1:key3')"));
-        $this->assertNull($this->language->evaluate("config('key1.key3')"));
-
-        $this->assertInternalType('array', $this->language->evaluate("config('key1:key2')"));
-        $this->assertEquals('value', $this->language->evaluate("config('key1:key2:key3')"));
-        $this->assertEquals('value', $this->language->evaluate("config('key1:key2:key3', false, 'string')"));
-    }
-
     public function testEvaluationWithArrayPathNestedConfig()
     {
         $this->overrideConfig(array(
@@ -188,7 +168,7 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
             'key4' => 'key2',
-            'key5' => 'key1:key2:key3'
+            'key5' => array('key1', 'key2', 'key3')
         ));
 
         $this->assertEquals('value', $this->language->evaluate("config(config('key5'))"));

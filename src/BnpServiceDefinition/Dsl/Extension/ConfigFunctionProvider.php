@@ -111,6 +111,8 @@ CONFIG;
     {
         if ($config instanceof \Traversable) {
             $config = ArrayUtils::iteratorToArray($config);
+        } elseif (is_string($config)) {
+            $config = array($config);
         }
 
         if (! is_array($config)) {
