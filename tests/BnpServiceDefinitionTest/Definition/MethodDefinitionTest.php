@@ -26,13 +26,34 @@ class MethodDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('somethingIsTrue', $conditions[0]);
     }
 
-    public function testInstanceFromArraySpecs()
+    public function arraySpecsProvider()
     {
-        $definition = MethodCallDefinition::fromArray(array(
-            'name' => 'someSetter',
-            'params' => array('setterArg'),
-            'condition' => 'somethingIsFalse'
-        ));
+        return array(
+            array(array(
+                'name' => 'someSetter',
+                'params' => array('setterArg'),
+                'condition' => 'somethingIsFalse'
+            )),
+            array(array(
+                'name' => 'someSetter',
+                'parameters' => array('setterArg'),
+                'condition' => 'somethingIsFalse'
+            )),
+            array(array(
+                'name' => 'someSetter',
+                'params' => array('setterArg'),
+                'conditions' => 'somethingIsFalse'
+            ))
+        );
+    }
+
+    /**
+     * @param array $arraySpecs
+     * @dataProvider arraySpecsProvider
+     */
+    public function testInstanceFromArraySpecs(array $arraySpecs)
+    {
+        $definition = MethodCallDefinition::fromArray($arraySpecs);
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\MethodDefinition', $definition);
         $this->assertEquals('someSetter', $definition->getName());

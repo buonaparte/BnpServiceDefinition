@@ -20,6 +20,32 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($definition->getMethodCalls());
     }
 
+    public function arraySpecsProvider()
+    {
+        return array(
+            array(array(
+                'class' => 'SomeClass',
+                'args' => array('firstArgument', 'secondArgument')
+            )),
+            array(array(
+                'class' => 'SomeClass',
+                'arguments' => array('firstArgument', 'secondArgument')
+            ))
+        );
+    }
+
+    /**
+     * @param array $arraySpecs
+     * @dataProvider arraySpecsProvider
+     */
+    public function testInstanceFromArraySpecs(array $arraySpecs)
+    {
+        $definition = ClassDefinition::fromArray($arraySpecs);
+
+        $this->assertEquals('SomeClass', $definition->getClass());
+        $this->assertEquals(array('firstArgument', 'secondArgument'), $definition->getArguments());
+    }
+
     public function testFromArrayIgnoresUndefinedProperties()
     {
         $definition = ClassDefinition::fromArray(array(
@@ -29,17 +55,46 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('BnpServiceDefinition\Definition\ClassDefinition', $definition);
     }
 
-    public function testFromArrayCreatesMethodDefinitionsFromSpecs()
+    public function methodCallsArraySpecsProvider()
     {
-        $definition = ClassDefinition::fromArray(array(
-            'method_calls' => array(
-                array(
-                    'name' => 'someSetter',
-                    'params' => array('setterArg'),
-                    'condition' => 'somethingIsTrue'
+        return array(
+            array(array(
+                'method_calls' => array(
+                    array(
+                        'name' => 'someSetter',
+                        'params' => array('setterArg'),
+                        'condition' => 'somethingIsTrue'
+                    )
                 )
-            )
-        ));
+            )),
+            array(array(
+                'calls' => array(
+                    array(
+                        'name' => 'someSetter',
+                        'params' => array('setterArg'),
+                        'condition' => 'somethingIsTrue'
+                    )
+                )
+            )),
+            array(array(
+                'methodCalls' => array(
+                    array(
+                        'name' => 'someSetter',
+                        'params' => array('setterArg'),
+                        'condition' => 'somethingIsTrue'
+                    )
+                )
+            ))
+        );
+    }
+
+    /**
+     * @param array $methodCallsArraySpecs
+     * @dataProvider methodCallsArraySpecsProvider
+     */
+    public function testFromArrayCreatesMethodDefinitionsFromSpecs(array $methodCallsArraySpecs)
+    {
+        $definition = ClassDefinition::fromArray($methodCallsArraySpecs);
 
         $this->assertInstanceOf('BnpServiceDefinition\Definition\ClassDefinition', $definition);
         $this->assertInternalType('array', $definition->getMethodCalls());

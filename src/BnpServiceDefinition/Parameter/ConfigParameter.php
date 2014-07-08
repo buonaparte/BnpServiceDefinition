@@ -9,7 +9,7 @@ use Zend\Stdlib\ArrayUtils;
 class ConfigParameter implements ParameterInterface
 {
     /**
-     * @param $definition array
+     * @param $definition array|\Traversable
      * @return string BnpServiceDefinition\Dsl\Language compatible
      * @throws Exception\InvalidArgumentException if not an non-empty array provided
      */
