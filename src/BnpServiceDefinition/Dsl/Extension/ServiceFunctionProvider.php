@@ -48,7 +48,8 @@ class ServiceFunctionProvider implements
 
     public function getCompiler()
     {
-        return function ($service, $silent = false, $instance = null) {
+        $serviceName = $this->serviceName;
+        return function ($service, $silent = false, $instance = null) use ($serviceName) {
             if (! is_string($service)) {
                 return $service;
             }
@@ -65,7 +66,7 @@ class ServiceFunctionProvider implements
 
             return sprintf(
                 '$this->services->get(\'%s\')->getService(%s, %s, %s)',
-                $this->serviceName,
+                $serviceName,
                 $service,
                 $silent,
                 $instance
