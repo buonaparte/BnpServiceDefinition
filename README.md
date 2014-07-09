@@ -1,7 +1,7 @@
 BnpServiceDefinition
 ====================
 
-This module allows you define ServiceManager factories through simple and verbose configuration.
+This module allows you define ServiceManager factories through simple, yet verbose configuration.
 
 Installation
 ------------
