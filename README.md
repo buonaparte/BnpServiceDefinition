@@ -126,7 +126,7 @@ compile `config` and `service` types, the Expression Language is extended with 2
 
 ```
 service(service_name, silent = false, instance = null)
-config(string_or_array_of_config_path, silent = true, type = null)
+config(string_or_array_for_nested_config_path, silent = true, type = null)
 ```
 
 Supposing the monthly budget could be retrieved from the database, wrapped in another service the definition could become
@@ -193,6 +193,9 @@ return [
 ];
 ```
 
+**Notice** service type parameters or service dsl function using from this scopes will point to the Zend Framework's root Service Manager,
+to access a plugin from current scope you can use this dsl syntax: `service('ControllerManager').get(some_service)`.
+
 How it works
 ------------
 
@@ -204,3 +207,9 @@ the creation to a compiled version of all "terminal" (do not contain `'abstract'
 
 If `dump-abstract-factories` under `bnp-service-definition` is set to `true`, The Abstract Factory will delegate all it's calls to the compiled (dumped) version,
 or each requested definition will be compiled to Symfony Expression Language and evaluated on the fly otherwise.
+
+For performance considerations you will always use `dump-abstract-factories` set to true, the module will check if your definitions have changed and
+regenerate the compiled version on the fly, all you will care about is specify a writable directory for storing that abstract factories, ex: `./data/bnp-service-definitions`
+
+Example of a dumped abstract factory:
+

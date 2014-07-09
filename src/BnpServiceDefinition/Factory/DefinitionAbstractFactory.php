@@ -81,9 +81,19 @@ class DefinitionAbstractFactory implements
                     ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
                     : $this->definitionRepository->getChecksum()
             );
-        $factory->class = sprintf('BnpGeneratedAbstractFactory_%s', $this->definitionRepository->getChecksum());
+        $factory->class = sprintf(
+            'BnpGeneratedAbstractFactory_%s',
+             null !== $this->scopeName
+                ? sprintf('%s_%s', $this->getScopeCanonicalName(), $this->definitionRepository->getChecksum())
+                : $this->definitionRepository->getChecksum()
+        );
 
         return $factory;
+    }
+
+    protected function getScopeCanonicalName()
+    {
+        return preg_replace('@[^\w]@', '', $this->scopeName);
     }
 
     /**
@@ -187,6 +197,18 @@ class DefinitionAbstractFactory implements
 
         $factory = $this->getGeneratedFactory();
         if (! file_exists($factory->filename) || ! is_readable($factory->filename)) {
+            $pattern = str_replace(
+                $this->definitionRepository->getChecksum(),
+                str_repeat('?', strlen($this->definitionRepository->getChecksum())),
+                $factory->filename
+            );
+
+            foreach (glob($pattern) as $file) {
+                if (is_readable($file)) {
+                    unlink($file);
+                }
+            }
+
             $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->write();
         }
 
