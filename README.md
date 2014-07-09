@@ -79,16 +79,16 @@ A definition parameter is a simple string or a an array containing 2 entries: `t
 specify a service class name, constructor arguments, method names to call as well as it's parameters and conditions.
 By default BnpServiceDefinition comes with this resolvable parameter types:
 
-* `config` - takes a configuration value, specified by the `value` from the `Config` shared service, `value` can be
-either a string or an array pointing to a nested config, ex: ['parameters', 'some_parameter'] will return `$config['parameters']['some_parameter']` or `null`
+* **config** - takes a configuration value, specified by the `value` from the `Config` shared service, `value` can be
+either a string or an array pointing to a nested config, ex: `['parameters', 'some_parameter']` will return `$config['parameters']['some_parameter']` or `null`
 if configuration value could not be found.
 
-* `service` - pulls a service by name, specified by the `value` from the ServiceManager, or null if the service is not defined
+* **service** - pulls a service by name, specified by the `value` from the ServiceManager, or null if the service is not defined
 or could not be created, ex: 'Zend\Log' will return $serviceLocator->get('Zend\Log') instance.
 
-* `value` - passes the parameter **as it is**, defined under the `value` key, only `int`, `float` / `double`, `boolean` and `array` are accepted.
+* **value** - passes the parameter **as it is**, defined under the `value` key, only `int`, `float` / `double`, `boolean` and `array` are accepted.
 
-* `dsl` - interprets the expression under the `value` key, the expression must be a valid Symfony Expression Language statement.
+* **dsl** - interprets the expression under the `value` key, the expression must be a valid [Symfony Expression Language](http://symfony.com/doc/current/components/expression_language/index.html) statement.
 
 Now the above definition could become:
 
@@ -122,7 +122,7 @@ return [
 ```
 
 Every parameter gets compiled to the `dsl` type form by `BnpServiceDefinition\Service\ParameterResolver`, to evaluate or
-compile `config` and `service` types, the Expression Language is extended with 2 functions:
+compile `config` and `service` types, the [Symfony Expression Language](http://symfony.com/doc/current/components/expression_language/index.html) is extended with 2 functions:
 
 ```
 service(service_name, silent = false, instance = null)
@@ -206,7 +206,7 @@ The Abstract Factory will look for `definitions` key under ServiceManager config
 the creation to a compiled version of all "terminal" (do not contain `'abstract' => true`) definitions.
 
 If `dump-abstract-factories` under `bnp-service-definition` is set to `true`, The Abstract Factory will delegate all it's calls to the compiled (dumped) version,
-or each requested definition will be compiled to Symfony Expression Language and evaluated on the fly otherwise.
+or each requested definition will be compiled to [Symfony Expression Language](http://symfony.com/doc/current/components/expression_language/index.html) and evaluated on the fly otherwise.
 
 For performance considerations you will always use `dump-abstract-factories` set to true, the module will check if your definitions have changed and
 regenerate the compiled version on the fly, all you will care about is specify a writable directory for storing that abstract factories, ex: `./data/bnp-service-definitions`
