@@ -36,7 +36,6 @@ return array(
 );
 ```
 
-
 Configuration
 -------------
 
