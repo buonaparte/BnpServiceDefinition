@@ -35,9 +35,9 @@ class ValueParameter implements ParameterInterface
 
             case 'array':
                 $self = $this;
-
+                $ret = null;
                 if (ArrayUtils::isHashTable($definition)) {
-                    return '{'
+                    $ret = '{'
                         . implode(
                             ', ',
                             array_map(
@@ -53,13 +53,17 @@ class ValueParameter implements ParameterInterface
                         )
                         . '}';
                 } else {
-                    return '['
+                    $ret = '['
                         . implode(', ', array_map(
-                            function ($value) use ($self) { return $self->compile($value); },
+                            function ($value) use ($self) {
+                                return $self->compile($value);
+                            },
                             $definition
                         ))
                         . ']';
                 }
+
+                return $ret;
 
             case 'bool':
             case 'boolean':

@@ -55,7 +55,8 @@ class ConfigFunctionProvider implements
 
     public function getCompiler()
     {
-        return function ($config, $silent = true, $type = null) {
+        $serviceName = $this->serviceName;
+        return function ($config, $silent = true, $type = null) use ($serviceName) {
             if ('false' === $silent) {
                 $silent = false;
             }
@@ -65,7 +66,7 @@ class ConfigFunctionProvider implements
             }
 
             return <<<CONFIG
-\$this->services->get('{$this->serviceName}')->getConfigValue($config, $silent, $type)
+\$this->services->get('{$serviceName}')->getConfigValue($config, $silent, $type)
 CONFIG;
         };
     }

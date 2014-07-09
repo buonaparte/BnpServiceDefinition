@@ -45,7 +45,9 @@ class ConfigParameter implements ParameterInterface
             implode(
                 '\', \'',
                 array_map(
-                    function ($part) { return LanguageUtils::escapeSingleQuotedString($part); },
+                    function ($part) {
+                        return LanguageUtils::escapeSingleQuotedString($part);
+                    },
                     $definition
                 )
             )

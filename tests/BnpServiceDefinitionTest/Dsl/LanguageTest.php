@@ -65,22 +65,32 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
             ->method('getEvaluator')
             ->will($this->returnValue(
                 function () {
-
                 }
             ));
         $first->expects($this->atLeastOnce())
             ->method('getCompiler')
-            ->will($this->returnValue(function () { return ''; }));
+            ->will($this->returnValue(
+                function () {
+                    return '';
+                }
+            ));
 
         $second->expects($this->exactly(0))
             ->method('getName')
             ->will($this->returnValue('some_other_function'));
         $second->expects($this->exactly(0))
             ->method('getEvaluator')
-            ->will($this->returnValue(function () {}));
+            ->will($this->returnValue(
+                function () {
+                }
+            ));
         $second->expects($this->exactly(0))
             ->method('getCompiler')
-            ->will($this->returnValue(function () { return ''; }));
+            ->will($this->returnValue(
+                function () {
+                    return '';
+                }
+            ));
 
         $this->language->registerExtension($first);
 
@@ -102,10 +112,17 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('some_function'));
         $extension->expects($this->atLeastOnce())
             ->method('getEvaluator')
-            ->will($this->returnValue(function () {}));
+            ->will($this->returnValue(
+                function () {
+                }
+            ));
         $extension->expects($this->atLeastOnce())
             ->method('getCompiler')
-            ->will($this->returnValue(function () { return ''; }));
+            ->will($this->returnValue(
+                function () {
+                    return '';
+                }
+            ));
 
         return array(
             array($extension)
