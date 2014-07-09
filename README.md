@@ -303,7 +303,7 @@ class BnpGeneratedAbstractFactory_ControllerManager_649327d7946953e6a8612c338d22
      * @throws \BnpServiceDefinition\Exception\RuntimeException If an error occurs
      * during instantiation
      */
-    protected function getCrowdsAdminControllerUser($definitionName)
+    protected function getMeControllerUser($definitionName)
     {
         $serviceClassName = "Me\\Controller\\UserController";
         if (! is_string($serviceClassName)) {
