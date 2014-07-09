@@ -42,9 +42,12 @@ class ConfigParameter implements ParameterInterface
 
         return sprintf(
             'config([\'%s\'])',
-            implode('\', \'', array_map(
+            implode(
+                '\', \'',
+                array_map(
                     function ($part) { return LanguageUtils::escapeSingleQuotedString($part); },
-                    $definition)
+                    $definition
+                )
             )
         );
     }

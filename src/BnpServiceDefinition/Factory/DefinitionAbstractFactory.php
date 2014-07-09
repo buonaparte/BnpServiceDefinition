@@ -76,17 +76,18 @@ class DefinitionAbstractFactory implements
 
         $factory = new \stdClass();
         $factory->filename = rtrim($dir, '/')
-            . sprintf('/%s_%s.php',
+            . sprintf(
+                '/%s_%s.php',
                 'BnpGeneratedAbstractFactory',
                 null !== $this->scopeName
-                    ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
-                    : $this->definitionRepository->getChecksum()
+                ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
+                : $this->definitionRepository->getChecksum()
             );
         $factory->class = sprintf(
             'BnpGeneratedAbstractFactory_%s',
-             null !== $this->scopeName
-                ? sprintf('%s_%s', $this->getScopeCanonicalName(), $this->definitionRepository->getChecksum())
-                : $this->definitionRepository->getChecksum()
+            null !== $this->scopeName
+            ? sprintf('%s_%s', $this->getScopeCanonicalName(), $this->definitionRepository->getChecksum())
+            : $this->definitionRepository->getChecksum()
         );
 
         return $factory;
@@ -243,7 +244,9 @@ class DefinitionAbstractFactory implements
             /** @var $serviceManager ServiceManager */
             if (! ($serviceManager = $services->get($container)) instanceof ServiceManager) {
                 throw new \InvalidArgumentException(sprintf(
-                    'Inner service locator %s must be an instance of ServiceManager', $container));
+                    'Inner service locator %s must be an instance of ServiceManager',
+                    $container
+                ));
             }
 
             $factory = new self(new DefinitionRepository($this->getDefinitionsConfig($containerConfig)), $container);

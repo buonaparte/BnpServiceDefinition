@@ -130,6 +130,6 @@ class Language extends ExpressionLanguage implements
 
                 $this->register($extension->getName(), $compiler, $evaluator);
             }
-         }
+        }
     }
 }

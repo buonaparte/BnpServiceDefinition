@@ -278,7 +278,9 @@ class Generator
     {
         $self = $this;
         return array_map(
-            function ($param) use ($self, $names) { return $this->compileDslPart($param, $names); },
+            function ($param) use ($self, $names) {
+                return $this->compileDslPart($param, $names);
+            },
             $this->parameterResolver->resolveParameters($params)
         );
     }
@@ -292,7 +294,9 @@ class Generator
         $knownDefinitions = implode(
             ', ',
             array_map(
-                function ($definitionName) { return "'$definitionName'"; },
+                function ($definitionName) {
+                    return "'$definitionName'";
+                },
                 array_keys($repository->getTerminableDefinitions())
             )
         );

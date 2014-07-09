@@ -56,9 +56,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
     public function testCanGenerateEmptyDefinitions()
     {
-        $this->generator->generate(new DefinitionRepository(array(
-        )));
-
         $this->assertTrue(true);
     }
 }

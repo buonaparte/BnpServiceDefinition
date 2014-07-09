@@ -34,20 +34,23 @@ class ValueParameter implements ParameterInterface
                 return $definition;
 
             case 'array':
-                // PHP 5.3 compatibility
                 $self = $this;
 
                 if (ArrayUtils::isHashTable($definition)) {
                     return '{'
-                        . implode(', ', array_map(
-                            function ($key) use ($self, $definition) {
-                                return sprintf(
-                                    "'%s': %s",
-                                    LanguageUtils::escapeSingleQuotedString($key),
-                                    $self->compile($definition[$key])
-                                );
-                            },
-                            array_keys($definition)))
+                        . implode(
+                            ', ',
+                            array_map(
+                                function ($key) use ($self, $definition) {
+                                    return sprintf(
+                                        "'%s': %s",
+                                        LanguageUtils::escapeSingleQuotedString($key),
+                                        $self->compile($definition[$key])
+                                    );
+                                },
+                                array_keys($definition)
+                            )
+                        )
                         . '}';
                 } else {
                     return '['

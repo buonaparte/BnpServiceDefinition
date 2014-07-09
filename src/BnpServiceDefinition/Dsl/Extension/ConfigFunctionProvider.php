@@ -88,7 +88,7 @@ CONFIG;
         return $this->config = $config;
     }
 
-    protected function getConfigNode(array $path = array(), $silent, $type)
+    protected function getConfigNode(array $path, $silent, $type)
     {
         $config = $this->getConfig();
         while (! empty($path) && ! empty($config)) {

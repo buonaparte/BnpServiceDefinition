@@ -63,7 +63,11 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('some_function'));
         $first->expects($this->atLeastOnce())
             ->method('getEvaluator')
-            ->will($this->returnValue(function () {}));
+            ->will($this->returnValue(
+                function () {
+
+                }
+            ));
         $first->expects($this->atLeastOnce())
             ->method('getCompiler')
             ->will($this->returnValue(function () { return ''; }));
