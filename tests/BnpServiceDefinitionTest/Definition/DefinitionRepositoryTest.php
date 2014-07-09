@@ -355,4 +355,65 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $repo->getServiceDefinition('first');
     }
+
+    public function testComputedChecksumReflectsDefinitionSpecsChanges()
+    {
+        $firstDefinitionSpecs = array(
+            'first' => array(
+                'class' => 'stdClass'
+            ),
+            'second' => array(
+                'class' => 'SomeClass'
+            )
+        );
+        $secondDefinitionSpecs = array_reverse($firstDefinitionSpecs, true);
+
+        $firstRepo = new DefinitionRepository($firstDefinitionSpecs);
+        $secondRepo = new DefinitionRepository($secondDefinitionSpecs);
+
+        $this->assertEquals(hash('md5', json_encode($firstDefinitionSpecs)), $firstRepo->getChecksum());
+        $this->assertEquals(hash('md5', json_encode($secondDefinitionSpecs)), $secondRepo->getChecksum());
+
+        $this->assertNotEquals($firstRepo->getChecksum(), $secondRepo->getChecksum());
+    }
+
+    public function definitionSpecsProvider()
+    {
+        return array(
+            array(array(
+                'first' => array(
+                    'class' => 'SomeClass'
+                ),
+                'second' => array(
+                    'class' => 'stdClass'
+                )
+            )),
+            array(array(
+                'first' => array(
+                    'class' => 'SomeClass',
+                    'abstract' => true
+                ),
+                'second' => array(
+                    'parent' => 'first'
+                )
+            )),
+            array(array(
+                'first' => array(
+                )
+            ))
+        );
+    }
+
+    /**
+     * @param array $specs
+     * @dataProvider definitionSpecsProvider
+     */
+    public function testHasDefinitionOperatesOnyOnSpecs(array $specs)
+    {
+        $repo = new DefinitionRepository($specs);
+
+        foreach (array_keys($specs) as $existingDefinition) {
+            $this->assertTrue($repo->hasDefinition($existingDefinition));
+        }
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace BnpServiceDefinition\Definition;
 
+use BnpServiceDefinition\Exception;
+
 class ClassDefinition
 {
     /**
@@ -102,11 +104,16 @@ class ClassDefinition
         return $this->methodCalls;
     }
 
+    /**
+     * @param $methodCall
+     * @return $this
+     * @throws \BnpServiceDefinition\Exception\InvalidArgumentException if invalid method call provided
+     */
     public function addMethodCall($methodCall)
     {
         if (! $methodCall instanceof MethodCallDefinition) {
             if (empty($methodCall) || ! is_string($methodCall) && ! is_array($methodCall)) {
-                throw new \RuntimeException(sprintf(
+                throw new Exception\InvalidArgumentException(sprintf(
                     'Method name cannot be empty, must be a method name, or a method call array specs, %s provided',
                     gettype($methodCall)
                 ));
@@ -121,7 +128,13 @@ class ClassDefinition
             /** @var $method MethodCallDefinition */
             if ($methodCall->getName() === $method->getName()) {
                 $method->setParameters(array_merge($method->getParameters(), $methodCall->getParameters()));
-                $method->setConditions(array_merge($method->getConditions(), $methodCall->getConditions()));
+
+                if (null !== $method->getConditions() || null !== $methodCall->getConditions()) {
+                    $method->setConditions(array_merge(
+                        null === $method->getConditions() ? array() : $method->getConditions(),
+                        null === $methodCall->getConditions() ? array() : $methodCall->getConditions()
+                    ));
+                }
 
                 return $this;
             }

@@ -3,6 +3,7 @@
 namespace BnpServiceDefinitionTest\Definition;
 
 use BnpServiceDefinition\Definition\MethodCallDefinition;
+use BnpServiceDefinition\Exception\InvalidArgumentException;
 
 class MethodDefinitionCallTest extends \PHPUnit_Framework_TestCase
 {
@@ -62,7 +63,7 @@ class MethodDefinitionCallTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException InvalidArgumentException
      */
     public function testFromArrayMethodThrowsExceptionOnNoName()
     {

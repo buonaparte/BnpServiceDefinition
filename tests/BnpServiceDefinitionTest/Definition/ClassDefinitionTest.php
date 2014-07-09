@@ -4,6 +4,8 @@ namespace BnpServiceDefinitionTest\Definition;
 
 use BnpServiceDefinition\Definition\ClassDefinition;
 use BnpServiceDefinition\Definition\MethodCallDefinition;
+use BnpServiceDefinition\Exception\InvalidArgumentException;
+use Zend\Stdlib\ArrayObject;
 
 class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
 {
@@ -131,8 +133,91 @@ class ClassDefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('secondSetter', $secondCall->getName());
     }
 
+    public function addMethodCallInvalidArgumentsProvider()
+    {
+        return array(
+            array(array()),
+            array(new ArrayObject(array()))
+        );
+    }
+
     /**
-     * @expectedException \RuntimeException
+     * @param $methodCall
+     * @dataProvider addMethodCallInvalidArgumentsProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testAddMethodCallWillThrowExceptionOnInvalidArgument($methodCall)
+    {
+        ClassDefinition::fromArray(array())->addMethodCall($methodCall);
+    }
+
+    public function testAddMethodCallMergesExistingMethodParameters()
+    {
+        $definition = ClassDefinition::fromArray(array(
+            'method_calls' => array(
+                'firstSetter',
+                array('secondSetter', array('arg1')),
+                array(
+                    'name' => 'thirdSetter',
+                    'parameters' => array('#1' => 'arg1')
+                )
+            )
+        ));
+
+        $definition->addMethodCall(array('firstSetter', array('arg')));
+        $definition->addMethodCall(array('secondSetter', array('arg2')));
+        $definition->addMethodCall(array('thirdSetter', array('#1' => 'arg2')));
+
+        $methodCalls = $definition->getMethodCalls();
+        /** @var $first MethodCallDefinition */
+        $first = $methodCalls[0];
+        /** @var $second MethodCallDefinition */
+        $second = $methodCalls[1];
+        /** @var $third MethodCallDefinition */
+        $third = $methodCalls[2];
+
+        $this->assertEquals(array('arg'), $first->getParameters());
+        $this->assertEquals(array('arg1', 'arg2'), $second->getParameters());
+        $this->assertEquals(array('arg2'), array_values($third->getParameters()));
+    }
+
+    public function testAddMethodCallMergesExistingMethodConditions()
+    {
+        $definition = ClassDefinition::fromArray(array(
+            'method_calls' => array(
+                'firstSetter',
+                array('secondSetter', array(), 'somethingIsTrue'),
+                array(
+                    'name' => 'thirdSetter',
+                    'conditions' => array('#1' => 'somethingIsTrue')
+                ),
+                'fourthSetter'
+            )
+        ));
+
+        $definition->addMethodCall(array('firstSetter', array(), 'somethingIsTrue'));
+        $definition->addMethodCall(array('secondSetter', array(), 'somethingElseIsTrue'));
+        $definition->addMethodCall(array('thirdSetter', array(), array('#1' => 'somethingElseIsTrue')));
+        $definition->addMethodCall(array('fourthSetter'));
+
+        $methodCalls = $definition->getMethodCalls();
+        /** @var $first MethodCallDefinition */
+        $first = $methodCalls[0];
+        /** @var $second MethodCallDefinition */
+        $second = $methodCalls[1];
+        /** @var $third MethodCallDefinition */
+        $third = $methodCalls[2];
+        /** @var $fourth MethodCallDefinition */
+        $fourth = $methodCalls[3];
+
+        $this->assertEquals(array('somethingIsTrue'), $first->getConditions());
+        $this->assertEquals(array('somethingIsTrue', 'somethingElseIsTrue'), $second->getConditions());
+        $this->assertEquals(array('somethingElseIsTrue'), array_values($third->getConditions()));
+        $this->assertNull($fourth->getConditions());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
      */
     public function testFromArrayThrowsExceptionInWrongMethodCallsSpecs()
     {

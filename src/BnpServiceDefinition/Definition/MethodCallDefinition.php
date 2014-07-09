@@ -2,6 +2,7 @@
 
 namespace BnpServiceDefinition\Definition;
 
+use BnpServiceDefinition\Exception;
 use Zend\Stdlib\ArrayUtils;
 
 class MethodCallDefinition
@@ -31,7 +32,7 @@ class MethodCallDefinition
     /**
      * @param array $specs
      * @return MethodCallDefinition
-     * @throws \RuntimeException
+     * @throws Exception\InvalidArgumentException
      */
     public static function fromArray(array $specs)
     {
@@ -50,7 +51,7 @@ class MethodCallDefinition
         }
 
         if (! isset($specs['name'])) {
-            throw new \RuntimeException(
+            throw new Exception\InvalidArgumentException(
                 'MethodDefinition expects at least a method name, under "name" key or first list argument'
             );
         }

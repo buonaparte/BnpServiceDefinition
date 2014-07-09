@@ -4,17 +4,18 @@ namespace BnpServiceDefinitionTest\Parameter;
 
 use BnpServiceDefinition\Parameter\ConfigParameter;
 use BnpServiceDefinition\Exception\InvalidArgumentException;
+use Zend\Stdlib\ArrayObject;
 
 class ConfigParameterTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var ConfigParameter
      */
-    protected $configReference;
+    protected $configParameter;
 
     protected function setUp()
     {
-        $this->configReference = new ConfigParameter();
+        $this->configParameter = new ConfigParameter();
     }
 
     public function testCompileByProvidingValidArrayPathConfigPath()
@@ -23,8 +24,15 @@ class ConfigParameterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             "config(['path', 'to', 'a', 'nested_config', 'un \\\'quoted'])",
-            $this->configReference->compile($definition)
+            $this->configParameter->compile($definition)
         );
+    }
+
+    public function testCompileByProvidingATraversableInstanceAsPathConfig()
+    {
+        $definition = new ArrayObject(array('path', 'to', 'a', 'config'));
+
+        $this->assertEquals("config(['path', 'to', 'a', 'config'])", $this->configParameter->compile($definition));
     }
 
     /**
@@ -37,7 +45,7 @@ class ConfigParameterTest extends \PHPUnit_Framework_TestCase
         $failures = 0;
         foreach ($definitions as $invalidDefinition) {
             try {
-                $this->configReference->compile($invalidDefinition);
+                $this->configParameter->compile($invalidDefinition);
             } catch (\Exception $e) {
                 $failures += 1;
             }
@@ -45,7 +53,7 @@ class ConfigParameterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(2, $failures);
 
-        $this->configReference->compile(new \stdClass());
+        $this->configParameter->compile(new \stdClass());
     }
 
     /**
@@ -53,6 +61,6 @@ class ConfigParameterTest extends \PHPUnit_Framework_TestCase
      */
     public function testWillThrowExceptionWhenNotStringProvidedInArrayConfigPath()
     {
-        $this->configReference->compile(array('path', 'to', 'a', new \stdClass()));
+        $this->configParameter->compile(array('path', 'to', 'a', new \stdClass()));
     }
 }
