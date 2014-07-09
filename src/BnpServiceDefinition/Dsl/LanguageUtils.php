@@ -9,9 +9,4 @@ class LanguageUtils
         $string = preg_replace("#(^|[^\\\\])'#", "$1\\'", $string);
         return str_replace('\\', '\\\\', $string);
     }
-
-    public static function escapeDoubleQuotedString($string)
-    {
-        return preg_replace('#(^|[^\\])"#', '$1\"', $string);
-    }
 }

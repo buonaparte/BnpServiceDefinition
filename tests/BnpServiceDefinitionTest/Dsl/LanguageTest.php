@@ -8,6 +8,7 @@ use BnpServiceDefinition\Options\DefinitionOptions;
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Stdlib\ArrayObject;
 
 class LanguageTest extends \PHPUnit_Framework_TestCase
 {
@@ -159,5 +160,62 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
         $this->language->registerExtension('not_existing_service_extension');
 
         $this->language->evaluate('true');
+    }
+
+    public function testContextVariablesProviderCanReturnATraversableInstance()
+    {
+        $extension = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $extension->expects($this->any())
+            ->method('getContextVariables')
+            ->will($this->returnValue(new ArrayObject(array('a' => 2.3))));
+
+        $this->language->registerExtension($extension);
+
+        $this->assertEquals('2.3', $this->language->evaluate('a'));
+    }
+
+    public function testContextVariablesProviderThatReturnContextWithNumericKeysAreIgnored()
+    {
+        $first = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $first->expects($this->any())
+            ->method('getContextVariables')
+            ->will($this->returnValue(new ArrayObject(array('a' => 2.3, '10' => 'something'))));
+
+        $second = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $second->expects($this->any())
+            ->method('getContextVariables')
+            ->will($this->returnValue(array('a' => 5, 1 => 'somethingElse')));
+
+        $this->language->registerExtension($first);
+        $this->language->registerExtension($second);
+
+        $exceptionsThrown = 0;
+        foreach (array('a', 'a + 1') as $expression) {
+            try {
+                $this->language->evaluate($expression);
+            } catch (\Exception $e) {
+                $exceptionsThrown += 1;
+            }
+        }
+
+        $this->assertEquals(2, $exceptionsThrown);
+    }
+
+    public function testContextVariablesProviderResultsAreMerged()
+    {
+        $first = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $first->expects($this->any())
+            ->method('getContextVariables')
+            ->will($this->returnValue(new ArrayObject(array('a' => 2.3))));
+
+        $second = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\ContextVariablesProviderInterface');
+        $second->expects($this->any())
+            ->method('getContextVariables')
+            ->will($this->returnValue(array('a' => 5)));
+
+        $this->language->registerExtension($first);
+        $this->language->registerExtension($second);
+
+        $this->assertEquals('5', $this->language->evaluate('a'));
     }
 }

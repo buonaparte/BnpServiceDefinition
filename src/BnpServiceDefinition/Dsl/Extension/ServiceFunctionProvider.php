@@ -3,6 +3,7 @@
 namespace BnpServiceDefinition\Dsl\Extension;
 
 use BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface;
+use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -90,7 +91,11 @@ class ServiceFunctionProvider implements
         }
 
         if (null !== $service && null !== $instance and ! is_object($service) || ! $service instanceof $instance) {
-            throw new \RuntimeException();
+            throw new Exception\RuntimeException(sprintf(
+                'Expected  a "%s" service instance, "%s" received',
+                $instance,
+                is_object($service) ? get_class($service) : gettype($service)
+            ));
         }
 
         return $service;

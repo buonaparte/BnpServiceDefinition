@@ -2,6 +2,7 @@
 
 namespace BnpServiceDefinitionTest\Parameter;
 
+use BnpServiceDefinition\Exception\InvalidArgumentException;
 use BnpServiceDefinition\Parameter\ValueParameter;
 
 class ValueParameterTest extends \PHPUnit_Framework_TestCase
@@ -9,26 +10,28 @@ class ValueParameterTest extends \PHPUnit_Framework_TestCase
     /**
      * @var \BnpServiceDefinition\Parameter\ValueParameter
      */
-    protected $valueReference;
+    protected $valueParameter;
 
     protected function setUp()
     {
-        $this->valueReference = new ValueParameter();
+        $this->valueParameter = new ValueParameter();
     }
 
     public function testCompilesWithPrimitives()
     {
-        $this->assertEquals('4', $this->valueReference->compile(4));
-        $this->assertEquals('4.7', $this->valueReference->compile(4.7));
-        $this->assertEquals("'something'", $this->valueReference->compile('something'));
-        $this->assertEquals("'\\\'quoted\\\''", $this->valueReference->compile("'quoted'"));
+        $this->assertEquals('4', $this->valueParameter->compile(4));
+        $this->assertEquals('4.7', $this->valueParameter->compile(4.7));
+        $this->assertEquals("'something'", $this->valueParameter->compile('something'));
+        $this->assertEquals("'\\\'quoted\\\''", $this->valueParameter->compile("'quoted'"));
+        $this->assertEquals('true', $this->valueParameter->compile(true));
+        $this->assertEquals('false', $this->valueParameter->compile(false));
     }
 
     public function testCompilesNestedArrays()
     {
         $definition = array(1, 0.9, "'quoted'", array('something'));
 
-        $this->assertEquals("[1, 0.9, '\\\'quoted\\\'', ['something']]", $this->valueReference->compile($definition));
+        $this->assertEquals("[1, 0.9, '\\\'quoted\\\'', ['something']]", $this->valueParameter->compile($definition));
     }
 
     public function testCompilesNestedHashTables()
@@ -37,7 +40,15 @@ class ValueParameterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             "{'a': 'something', '\\\'b': [1.0, 2], 'c': {'foo': 'bar'}}",
-            $this->valueReference->compile($definition)
+            $this->valueParameter->compile($definition)
         );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCompileWillThrowExceptionUponNonSupportedValues()
+    {
+        $this->valueParameter->compile(new \stdClass());
     }
 }

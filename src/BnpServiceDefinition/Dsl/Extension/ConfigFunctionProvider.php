@@ -3,7 +3,7 @@
 namespace BnpServiceDefinition\Dsl\Extension;
 
 use BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface;
-use BnpServiceDefinition\Options\DefinitionOptions;
+use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\ArrayUtils;
@@ -20,11 +20,6 @@ class ConfigFunctionProvider implements
     protected $serviceName;
 
     /**
-     * @var DefinitionOptions
-     */
-    protected $options;
-
-    /**
      * @var ServiceLocatorInterface
      */
     protected $services;
@@ -34,9 +29,8 @@ class ConfigFunctionProvider implements
      */
     protected $config;
 
-    public function __construct(DefinitionOptions $options, $serviceName = null)
+    public function __construct($serviceName = null)
     {
-        $this->options = $options;
         $this->serviceName = null === $serviceName ? static::SERVICE_KEY : $serviceName;
     }
 
@@ -78,19 +72,12 @@ CONFIG;
         }
 
         $config = $this->getServiceLocator()->get('Config');
-        if ($config instanceof \Traversable) {
-            $config = ArrayUtils::iteratorToArray($config, true);
-        }
-
-        if (empty($config) || ! is_array($config)) {
-            return $this->config = array();
-        }
-
-        return $this->config = $config;
+        return $this->config = empty($config) ? array() : $config;
     }
 
     protected function getConfigNode(array $path, $silent, $type)
     {
+        $fullPath = $path;
         $config = $this->getConfig();
         while (! empty($path) && ! empty($config)) {
             $head = array_shift($path);
@@ -98,9 +85,18 @@ CONFIG;
         }
 
         if (! $silent && ! empty($path)) {
-            throw new \RuntimeException();
+            throw new Exception\RuntimeException(sprintf(
+                'Config (%s) could not be found, stopped at (%s)',
+                implode(' -> ', $fullPath),
+                implode(' -> ', $path)
+            ));
         } elseif (! $silent && null !== $type && gettype($config) !== (string) $type) {
-            throw new \RuntimeException();
+            throw new Exception\RuntimeException(sprintf(
+                'Expected a config value of "%s", received "%s", at (%s)',
+                $type.
+                gettype($config),
+                implode(' -> ', $fullPath)
+            ));
         } elseif (! empty($path)) {
             return null;
         }
@@ -117,20 +113,20 @@ CONFIG;
         }
 
         if (! is_array($config)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new Exception\InvalidArgumentException(sprintf(
                 'Config can only be a path array, %s provided',
                 gettype($config)
             ));
         }
 
         if (empty($config)) {
-            throw new \InvalidArgumentException('config cannot be an empty array');
+            throw new Exception\InvalidArgumentException('config cannot be an empty array');
         }
 
         $self = $this;
         array_walk($config, function ($part, $idx) use ($self) {
             if (! is_string($part)) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new Exception\InvalidArgumentException(sprintf(
                     'config can only contain strings as array path elements, %s received at index %d',
                     gettype($part),
                     $idx

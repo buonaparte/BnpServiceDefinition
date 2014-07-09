@@ -4,7 +4,8 @@ namespace BnpServiceDefinitionTest\Dsl\Extension;
 
 use BnpServiceDefinition\Dsl\Extension\ConfigFunctionProvider;
 use BnpServiceDefinition\Dsl\Language;
-use BnpServiceDefinition\Options\DefinitionOptions;
+use BnpServiceDefinition\Exception\InvalidArgumentException;
+use BnpServiceDefinition\Exception\RuntimeException;
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
@@ -21,11 +22,6 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
      */
     protected $language;
 
-    /**
-     * @var DefinitionOptions
-     */
-    protected $definitionOptions;
-
     protected function setUp()
     {
         $this->services = new ServiceManager(new Config(array(
@@ -35,11 +31,10 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
             ),
         )));
 
-        $definitions = $this->definitionOptions = new DefinitionOptions(array());
         $this->services->setFactory(
             'ConfigFunctionProvider',
-            function (ServiceLocatorInterface $services) use ($definitions) {
-                $provider = new ConfigFunctionProvider($definitions, 'ConfigFunctionProvider');
+            function (ServiceLocatorInterface $services) {
+                $provider = new ConfigFunctionProvider('ConfigFunctionProvider');
                 $provider->setServiceLocator($services);
 
                 return $provider;
@@ -114,7 +109,7 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testEvaluationWithoutConfig()
     {
@@ -173,5 +168,25 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('value', $this->language->evaluate("config(config('key5'))"));
         $this->assertEquals(array('key3' => 'value'), $this->language->evaluate("config(['key1', config('key4')])"));
+    }
+
+    public function invalidConfigArgumentProvider()
+    {
+        return array(
+            array("config(2.3)"),
+            array("config(true)"),
+            array("config(5)"),
+            array("config([])")
+        );
+    }
+
+    /**
+     * @param $invalidArgument string
+     * @dataProvider invalidConfigArgumentProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testEvaluationWillThrowAnExceptionUponInvalidConfigArgumentProvided($invalidArgument)
+    {
+        $this->language->evaluate($invalidArgument);
     }
 }

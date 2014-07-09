@@ -13,6 +13,7 @@ class MethodDefinitionCallTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInternalType('array', $definition->getParameters());
         $this->assertEmpty($definition->getParameters());
+        $this->assertFalse($definition->hasConditions());
         $this->assertNull($definition->getConditions());
     }
 
@@ -21,6 +22,7 @@ class MethodDefinitionCallTest extends \PHPUnit_Framework_TestCase
         $definition = new MethodCallDefinition('setSomething', array(), 'somethingIsTrue');
 
         $this->assertInternalType('array', $definition->getConditions());
+        $this->assertTrue($definition->hasConditions());
         $this->assertNotEmpty($definition->getConditions());
 
         $conditions = $definition->getConditions();

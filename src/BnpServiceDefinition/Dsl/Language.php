@@ -115,7 +115,7 @@ class Language extends ExpressionLanguage implements
                     $context = ArrayUtils::iteratorToArray($context, false);
                 }
 
-                if (ArrayUtils::isHashTable($context)) {
+                if (! ArrayUtils::hasNumericKeys($context)) {
                     $this->context = array_merge($this->context, $context);
                 }
             }
@@ -131,5 +131,7 @@ class Language extends ExpressionLanguage implements
                 $this->register($extension->getName(), $compiler, $evaluator);
             }
         }
+
+        $this->initialized = true;
     }
 }
