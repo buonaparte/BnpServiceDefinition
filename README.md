@@ -211,7 +211,8 @@ or each requested definition will be compiled to Symfony Expression Language and
 For performance considerations you will always use `dump-abstract-factories` set to true, the module will check if your definitions have changed and
 regenerate the compiled version on the fly, all you will care about is specify a writable directory for storing that abstract factories, ex: `./data/bnp-service-definitions`
 
-Example of a dumped abstract factory:
+Example of a dumped abstract factory for `ControllerManager` with a Users Controller definition depending on an User Service,
+filename `BnpGeneratedAbstractFactory_ControllerManager_649327d7946953e6a8612c338d22d539.php`, containing:
 
 ```php
 /**
