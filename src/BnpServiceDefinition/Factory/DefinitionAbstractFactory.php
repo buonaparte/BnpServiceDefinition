@@ -76,7 +76,8 @@ class DefinitionAbstractFactory implements
 
         $factory = new \stdClass();
         $factory->filename = rtrim($dir, '/')
-            . sprintf('/%s.php',
+            . sprintf('/%s_%s.php',
+                'BnpGeneratedAbstractFactory',
                 null !== $this->scopeName
                     ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
                     : $this->definitionRepository->getChecksum()
@@ -209,7 +210,8 @@ class DefinitionAbstractFactory implements
                 }
             }
 
-            $this->getGenerator()->generate($this->definitionRepository, $factory->filename)->write();
+            $this->getGenerator()->generate($factory->class, $this->definitionRepository, $factory->filename)
+                ->write();
         }
 
         require_once $factory->filename;
