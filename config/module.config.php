@@ -1,11 +1,6 @@
 <?php
 
 return array(
-    'bnp-service-definition' => array(
-        'definition_aware_containers' => array(
-            'ControllerManager' => 'controller_manager'
-        ),
-    ),
     'service_manager' => array(
         'invokables' => array(
             \BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider::SERVICE_KEY =>

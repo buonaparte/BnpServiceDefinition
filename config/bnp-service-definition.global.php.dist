@@ -1,0 +1,14 @@
+<?php
+
+return array(
+    'bnp-service-definition' => array(
+        /* Definition Aware containers */
+        'definition_aware_containers' => array(
+            //'ControllerManager' => 'controller_manager'
+        ),
+        /* Existing writable directory where generated Abstract Factories will be dumped */
+        'dump_directory' => './data/bnp-service-definition',
+        /* Set to true if you want to compile definitions */
+        'dump_factories' => false,
+    ),
+);

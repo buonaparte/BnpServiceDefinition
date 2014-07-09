@@ -20,10 +20,6 @@ class LanguageFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-//        $cacheKey = 'BnpServiceDefinition\Dsl\Language\Cache';
-//        /** @var $cache ParserCacheInterface */
-//        $cache = $serviceLocator->has($cacheKey) ? $serviceLocator->get($cacheKey) : null;
-
         $language = new Language(null);
         $language->registerExtension(ConfigFunctionProvider::SERVICE_KEY);
         $language->registerExtension(ServiceFunctionProvider::SERVICE_KEY);
