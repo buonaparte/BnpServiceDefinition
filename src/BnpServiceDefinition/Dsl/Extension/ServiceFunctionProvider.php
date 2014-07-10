@@ -27,7 +27,7 @@ class ServiceFunctionProvider implements
 
     public function __construct($serviceName = null)
     {
-        $this->serviceName = null === $serviceName ? static::SERVICE_KEY : null;
+        $this->serviceName = null === $serviceName ? static::SERVICE_KEY : $serviceName;
     }
 
     public function getName()

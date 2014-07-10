@@ -2,11 +2,8 @@
 
 namespace BnpServiceDefinitionTest\Dsl;
 
-use BnpServiceDefinition\Dsl\Extension\ConfigFunctionProvider;
 use BnpServiceDefinition\Dsl\Language;
-use BnpServiceDefinition\Options\DefinitionOptions;
 use Zend\ServiceManager\Config;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayObject;
 
@@ -158,6 +155,30 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
         $this->language->registerExtension(array('something'));
         $this->language->registerExtension(new \stdClass());
         $this->language->registerExtension('not_existing_service_extension');
+
+        $invalidEvaluator = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface');
+        $invalidEvaluator->expects($this->any())
+            ->method('getEvaluator')
+            ->will($this->returnValue(null));
+        $invalidEvaluator->expects($this->any())
+            ->method('getCompiler')
+            ->will($this->returnValue(
+                function () {
+                }
+            ));
+        $this->language->registerExtension($invalidEvaluator);
+
+        $invalidCompiler = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface');
+        $invalidCompiler->expects($this->any())
+            ->method('getEvaluator')
+            ->will($this->returnValue(
+                function () {
+                }
+            ));
+        $invalidCompiler->expects($this->any())
+            ->method('getCompiler')
+            ->will($this->returnValue('not_a_callable'));
+        $this->language->registerExtension($invalidCompiler);
 
         $this->language->evaluate('true');
     }

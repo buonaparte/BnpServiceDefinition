@@ -154,6 +154,28 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('value', $this->language->evaluate("config(['key1', 'key2', 'key3'], false, 'string')"));
     }
 
+    public function testWillThrowExceptionOnNonSilentTypeSpecification()
+    {
+        $this->overrideConfig(array(
+            'key1' => 2.5,
+            'key2' => 'a value',
+            'key3' => 4,
+            'key4' => true
+        ));
+
+        $tests = array('key1' => 'boolean', 'key2' => 'double', 'key3' => 'string', 'key4' => 'array');
+        $exceptionsThrown = 0;
+        foreach ($tests as $config => $type) {
+            try {
+                $this->language->evaluate("config('{$config}', false, '{$type}')");
+            } catch (RuntimeException $e) {
+                $exceptionsThrown += 1;
+            }
+        }
+
+        $this->assertEquals(count($tests), $exceptionsThrown);
+    }
+
     public function testEvaluatesNestedConfigDefinitions()
     {
         $this->overrideConfig(array(
@@ -176,7 +198,8 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
             array("config(2.3)"),
             array("config(true)"),
             array("config(5)"),
-            array("config([])")
+            array("config([])"),
+            array("config(['config', []])")
         );
     }
 

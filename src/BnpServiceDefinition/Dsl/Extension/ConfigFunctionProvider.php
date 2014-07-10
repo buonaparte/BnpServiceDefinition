@@ -93,7 +93,7 @@ CONFIG;
         } elseif (! $silent && null !== $type && gettype($config) !== (string) $type) {
             throw new Exception\RuntimeException(sprintf(
                 'Expected a config value of "%s", received "%s", at (%s)',
-                $type.
+                $type,
                 gettype($config),
                 implode(' -> ', $fullPath)
             ));
@@ -106,9 +106,7 @@ CONFIG;
 
     public function getConfigValue($config, $silent = true, $type = null)
     {
-        if ($config instanceof \Traversable) {
-            $config = ArrayUtils::iteratorToArray($config);
-        } elseif (is_string($config)) {
+        if (is_string($config)) {
             $config = array($config);
         }
 
