@@ -5,6 +5,7 @@ namespace BnpServiceDefinitionTest\Definition;
 use BnpServiceDefinition\Definition\ClassDefinition;
 use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Definition\MethodCallDefinition;
+use BnpServiceDefinition\Exception\RuntimeException;
 
 class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -286,7 +287,7 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testWillThrowExceptionOnUndefinedResolvedClassNameDefinition()
     {
@@ -304,7 +305,7 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testWillThrowExceptionOnAbstractDefinitionRetrieval()
     {
@@ -323,7 +324,7 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testWillThrowExceptionOnNotExistingDefinition()
     {
@@ -337,7 +338,7 @@ class DefinitionRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testGetDefinitionWillThrowExceptionOnCircularDependency()
     {

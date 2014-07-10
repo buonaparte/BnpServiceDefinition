@@ -38,6 +38,13 @@ class Generator
      */
     protected $definitionFactoryMethods = array();
 
+    /**
+     * @var array
+     */
+    protected $immutableAccessorMethods = array(
+        'getServiceLocator'
+    );
+
     public function __construct(Language $language, ParameterResolver $parameterResolver, DefinitionOptions $options)
     {
         $this->options = $options;
@@ -228,7 +235,11 @@ class Generator
 
         $definitionName = 'get' . ucfirst($this->getDefinitionCanonicalName($definitionName));
         $i = 0;
-        while (array_key_exists($definitionName, $this->definitionFactoryMethods)) {
+        while (
+            array_key_exists($definitionName, $this->definitionFactoryMethods)
+            ||
+            in_array($definitionName, $this->immutableAccessorMethods)
+        ) {
             $definitionName .= ++$i;
         }
 
@@ -279,7 +290,7 @@ class Generator
         $self = $this;
         return array_map(
             function ($param) use ($self, $names) {
-                return $this->compileDslPart($param, $names);
+                return $self->compileDslPart($param, $names);
             },
             $this->parameterResolver->resolveParameters($params)
         );

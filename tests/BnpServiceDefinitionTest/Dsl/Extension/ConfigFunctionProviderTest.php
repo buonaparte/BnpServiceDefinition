@@ -69,7 +69,7 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             $this->getCompiledCode('"some_key", false, null'),
-            $this->language->compile("config('some_key', false)")
+            $this->language->compile("config('some_key', FALSE)")
         );
         $this->assertEquals(
             $this->getCompiledCode('"some_key", false, "int"'),

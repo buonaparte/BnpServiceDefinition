@@ -66,6 +66,10 @@ class ServiceProviderTest extends \PHPUnit_Framework_TestCase
             $this->language->compile("service('some_service')")
         );
         $this->assertEquals(
+            $this->getCompiledCode('"some_service", false, null'),
+            $this->language->compile("service('some_service', FALSE)")
+        );
+        $this->assertEquals(
             $this->getCompiledCode('"some_service", true, null'),
             $this->language->compile("service('some_service', true)")
         );

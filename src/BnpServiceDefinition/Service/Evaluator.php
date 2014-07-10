@@ -30,8 +30,19 @@ class Evaluator
         $definition = $repository->getServiceDefinition($definitionName);
         $className = $this->evaluateArgument($definition->getClass());
 
+        set_error_handler(
+            function ($level, $message) use ($definitionName) {
+                throw new Exception\RuntimeException(sprintf(
+                    'A %d level error occurred (message: "%s") when evaluating %s service definition',
+                    $level,
+                    $message,
+                    $definitionName
+                ));
+            }
+        );
+
         if (! class_exists($className, true)) {
-            throw new \RuntimeException(sprintf(
+            throw new Exception\RuntimeException(sprintf(
                 '%s definition resolved to the class %s, which does no exit',
                 $definitionName,
                 $className
@@ -46,7 +57,7 @@ class Evaluator
             /** @var $methodCall MethodCallDefinition */
             if (null !== $methodCall->getConditions()) {
                 foreach ($methodCall->getConditions() as $condition) {
-                    if ('true' !== $this->evaluateArgument($condition, $context)) {
+                    if (true !== $this->evaluateArgument($condition, $context)) {
                         continue 2;
                     }
                 }
@@ -75,6 +86,8 @@ class Evaluator
                 $this->evaluateArguments($methodCall->getParameters(), $context)
             );
         }
+
+        restore_error_handler();
 
         return $service;
     }

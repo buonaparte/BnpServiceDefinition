@@ -51,11 +51,7 @@ class ServiceFunctionProvider implements
     {
         $serviceName = $this->serviceName;
         return function ($service, $silent = false, $instance = null) use ($serviceName) {
-            if (! is_string($service)) {
-                return $service;
-            }
-
-            if ('false' === $silent) {
+            if ('false' === strtolower($silent)) {
                 $silent = false;
             }
             $silent = $silent ? 'true' : 'false';

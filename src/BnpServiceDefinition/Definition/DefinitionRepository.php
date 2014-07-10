@@ -2,6 +2,7 @@
 
 namespace BnpServiceDefinition\Definition;
 
+use BnpServiceDefinition\Exception;
 use Traversable;
 
 class DefinitionRepository implements \IteratorAggregate
@@ -60,14 +61,14 @@ class DefinitionRepository implements \IteratorAggregate
     public function getServiceDefinition($id, $final = true, $resolvedDefinitions = array())
     {
         if (array_key_exists($id, $resolvedDefinitions)) {
-            throw new \RuntimeException(sprintf(
+            throw new Exception\RuntimeException(sprintf(
                 'Recursion detected, traversing (%s) definitions path',
                 implode(' -> ', array_keys($resolvedDefinitions))
             ));
         }
 
         if (! array_key_exists($id, $this->definitions)) {
-            throw new \RuntimeException(sprintf('Service definition for id %s does not exists', $id));
+            throw new Exception\RuntimeException(sprintf('Service definition for id %s does not exists', $id));
         }
 
         $definition = ClassDefinition::fromArray($this->definitions[$id]);
@@ -89,11 +90,14 @@ class DefinitionRepository implements \IteratorAggregate
     protected function validateDefinition(ClassDefinition $classDefinition, $definitionName)
     {
         if (null === $classDefinition->getClass()) {
-            throw new \RuntimeException(sprintf('Retrieved definition %s has no class specified', $definitionName));
+            throw new Exception\RuntimeException(sprintf(
+                'Retrieved definition %s has no class specified',
+                $definitionName
+            ));
         }
 
         if ($classDefinition->getAbstract()) {
-            throw new \RuntimeException(sprintf(
+            throw new Exception\RuntimeException(sprintf(
                 'Could not retrieve %s definition, as it is abstract',
                 $definitionName
             ));

@@ -150,11 +150,18 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
 
     public function testSilentPassesInvalidExtensions()
     {
+        $this->services->setFactory(
+            'failing_service', function () {
+                throw new \RuntimeException();
+            }
+        );
+
         $this->language->registerExtension(1);
         $this->language->registerExtension(2.1);
         $this->language->registerExtension(array('something'));
         $this->language->registerExtension(new \stdClass());
         $this->language->registerExtension('not_existing_service_extension');
+        $this->language->registerExtension('failing_service');
 
         $invalidEvaluator = $this->getMock('BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface');
         $invalidEvaluator->expects($this->any())

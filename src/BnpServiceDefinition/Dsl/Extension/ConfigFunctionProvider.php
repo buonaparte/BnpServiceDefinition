@@ -51,7 +51,7 @@ class ConfigFunctionProvider implements
     {
         $serviceName = $this->serviceName;
         return function ($config, $silent = true, $type = null) use ($serviceName) {
-            if ('false' === $silent) {
+            if ('false' === strtolower($silent)) {
                 $silent = false;
             }
             $silent = $silent ? 'true' : 'false';

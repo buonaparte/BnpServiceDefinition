@@ -3,6 +3,7 @@
 namespace BnpServiceDefinitionTest\Service;
 
 use BnpServiceDefinition\Service\ParameterResolver;
+use Zend\ServiceManager\Exception\RuntimeException;
 
 class ParameterResolverTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,6 +31,10 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
             'BnpServiceDefinition\Parameter\ValueParameter',
             $this->resolver->get('BnpServiceDefinition\Parameter\ValueParameter')
         );
+        $this->assertInstanceOf(
+            'BnpServiceDefinition\Parameter\DslParameter',
+            $this->resolver->get('BnpServiceDefinition\Parameter\DslParameter')
+        );
     }
 
     public function testDefaultRegisteredPluginsAreAvailableFromShortCutAliases()
@@ -45,6 +50,10 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(
             'BnpServiceDefinition\Parameter\ValueParameter',
             $this->resolver->get('value')
+        );
+        $this->assertInstanceOf(
+            'BnpServiceDefinition\Parameter\DslParameter',
+            $this->resolver->get('dsl')
         );
     }
 
@@ -68,18 +77,18 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testCanRegisterAndUseAdditionalParameterTypePlugins()
     {
-        $reference = $this->getMock('BnpServiceDefinition\Parameter\ParameterInterface');
+        $parameter = $this->getMock('BnpServiceDefinition\Parameter\ParameterInterface');
 
-        $reference->expects($this->any())
+        $parameter->expects($this->any())
             ->method('compile')
             ->will($this->returnValue('true'));
 
-        $this->resolver->setService(get_class($reference), $reference);
-        $this->resolver->setAlias('mock', get_class($reference));
+        $this->resolver->setService(get_class($parameter), $parameter);
+        $this->resolver->setAlias('mock', get_class($parameter));
 
-        $this->assertInstanceOf(get_class($reference), $this->resolver->get(get_class($reference)));
+        $this->assertInstanceOf(get_class($parameter), $this->resolver->get(get_class($parameter)));
         $this->assertInstanceOf(
-            get_class($reference),
+            get_class($parameter),
             $this->resolver->get('mock')
         );
 
@@ -90,5 +99,23 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
                 'value' => 'ignorable_value'
             ))
         );
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testPluginsGetValidatedUponRetrieval()
+    {
+        $this->resolver->setFactory(
+            'invalid',
+            function () {
+                return new \stdClass();
+            }
+        );
+
+        $this->resolver->resolveParameter(array(
+            'type' => 'invalid',
+            'value' => 'ignorable_value'
+        ));
     }
 }
