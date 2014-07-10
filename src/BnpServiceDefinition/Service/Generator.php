@@ -235,8 +235,7 @@ class Generator
 
         $definitionName = 'get' . ucfirst($this->getDefinitionCanonicalName($definitionName));
         $i = 0;
-        while (
-            array_key_exists($definitionName, $this->definitionFactoryMethods)
+        while (array_key_exists($definitionName, $this->definitionFactoryMethods)
             ||
             in_array($definitionName, $this->immutableAccessorMethods)
         ) {
@@ -287,13 +286,12 @@ class Generator
 
     protected function compileParameters(array $params = array(), $names = array())
     {
-        $self = $this;
-        return array_map(
-            function ($param) use ($self, $names) {
-                return $self->compileDslPart($param, $names);
-            },
-            $this->parameterResolver->resolveParameters($params)
-        );
+        $compiled = array();
+        foreach ($this->parameterResolver->resolveParameters($params) as $param) {
+            $compiled[] = $this->compileDslPart($param, $names);
+        }
+
+        return $compiled;
     }
 
     /**

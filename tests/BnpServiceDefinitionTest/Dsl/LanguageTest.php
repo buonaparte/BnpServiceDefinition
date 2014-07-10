@@ -151,7 +151,8 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
     public function testSilentPassesInvalidExtensions()
     {
         $this->services->setFactory(
-            'failing_service', function () {
+            'failing_service',
+            function () {
                 throw new \RuntimeException();
             }
         );
