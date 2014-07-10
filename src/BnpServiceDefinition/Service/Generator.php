@@ -364,6 +364,17 @@ TEMPLATE;
 
         return
 <<<TEMPLATE
+set_error_handler(
+    function (\$level, \$message) use (\$definitionName) {
+        throw new Exception\RuntimeException(sprintf(
+            'A %d level error occurred (message: "%s") while creating %s service from compiled Abstract Factory',
+            \$level,
+            \$message,
+            \$definitionName
+        ));
+    }
+);
+
 \$serviceClassName = {$this->compileParameter($definition->getClass())};
 if (! is_string(\$serviceClassName)) {
     throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
@@ -381,6 +392,8 @@ if (! class_exists(\$serviceClassName, true)) {
 \$serviceReflection = new \ReflectionClass(\$serviceClassName);
 \$service = \$serviceReflection->newInstanceArgs(array({$arguments}));
 $methodCalls
+restore_error_handler();
+
 return \$service;
 TEMPLATE;
     }
