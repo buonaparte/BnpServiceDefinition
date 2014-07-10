@@ -29,7 +29,7 @@ class LanguageTest extends \PHPUnit_Framework_TestCase
         )));
 
         $this->language = new Language();
-        $this->language->setServiceManager($this->services);
+        $this->language->setServiceLocator($this->services);
     }
 
     public function testExtensionsGetRegisteredBeforeFirstEvaluateCall()

@@ -39,10 +39,6 @@ class ServiceFunctionProvider implements
     {
         $self = $this;
         return function ($args, $service, $silent = false, $instance = null) use ($self) {
-            if (! is_string($service)) {
-                return $service;
-            }
-
             return $self->getService($service, $silent, $instance);
         };
     }

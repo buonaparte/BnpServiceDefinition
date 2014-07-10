@@ -2,12 +2,9 @@
 
 namespace BnpServiceDefinitionTest\Dsl\Extension;
 
-use BnpServiceDefinition\Dsl\Extension\ConfigFunctionProvider;
 use BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider;
 use BnpServiceDefinition\Dsl\Language;
-use BnpServiceDefinition\Exception\InvalidArgumentException;
 use BnpServiceDefinition\Exception\RuntimeException;
-use BnpServiceDefinition\Options\DefinitionOptions;
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceManager;
@@ -40,7 +37,7 @@ class ServiceProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->language = new Language();
         $this->language->registerExtension('ServiceFunctionProvider');
-        $this->language->setServiceManager($this->services);
+        $this->language->setServiceLocator($this->services);
     }
 
     protected function overrideConfig(array $config = array())

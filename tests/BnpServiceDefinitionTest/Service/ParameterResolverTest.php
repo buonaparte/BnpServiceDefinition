@@ -2,6 +2,7 @@
 
 namespace BnpServiceDefinitionTest\Service;
 
+use BnpServiceDefinition\Exception\InvalidArgumentException;
 use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\ServiceManager\Exception\RuntimeException;
 
@@ -63,6 +64,25 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'something'", $this->resolver->resolveParameter('something'));
     }
 
+    public function invalidParameterProvider()
+    {
+        return array(
+            array(array('type' => 'value')),
+            array(array('value' => 'a_string')),
+            array(array())
+        );
+    }
+
+    /**
+     * @param $invalidParameter mixed
+     * @dataProvider invalidParameterProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testResolveParameterWillThrowExceptionOnInvalidParameterPassed($invalidParameter)
+    {
+        $this->resolver->resolveParameter($invalidParameter);
+    }
+
     public function testCanChangeFallbackParameterType()
     {
         $this->resolver->setDefaultResolvedType('value');
@@ -117,5 +137,13 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
             'type' => 'invalid',
             'value' => 'ignorable_value'
         ));
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testWillThrowExceptionOnInvalidDefaultResolver()
+    {
+        $this->resolver->setDefaultResolvedType('unknown_type');
     }
 }

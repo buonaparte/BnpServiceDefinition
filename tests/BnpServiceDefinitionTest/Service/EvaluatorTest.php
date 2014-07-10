@@ -114,6 +114,25 @@ class EvaluatorTest extends \PHPUnit_Framework_TestCase
         $this->evaluator->evaluate('evaluator_service', $repo);
     }
 
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testWillThrowExceptionOnNonStringMethodCallNameProvided()
+    {
+        $repo = new DefinitionRepository(array(
+            'array' => array(
+                'class' => '\ArrayObject',
+                'calls' => array(
+                    array(
+                        'name' => array('type' => 'value', 'value' => array('InvalidMethodCall'))
+                    )
+                )
+            ),
+        ));
+
+        $this->evaluator->evaluate('array', $repo);
+    }
+
     public function testEvaluatorChecksServiceMethodExistence()
     {
         $repo = new DefinitionRepository(array(

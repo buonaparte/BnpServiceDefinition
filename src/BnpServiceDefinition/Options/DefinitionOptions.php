@@ -11,7 +11,7 @@ class DefinitionOptions extends AbstractOptions
     /**
      * @var array
      */
-    protected $definitionAwareContainers;
+    protected $definitionAwareContainers = array();
 
     /**
      * @var bool

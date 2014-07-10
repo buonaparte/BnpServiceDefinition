@@ -43,7 +43,7 @@ class ConfigFunctionProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->language = new Language();
         $this->language->registerExtension('ConfigFunctionProvider');
-        $this->language->setServiceManager($this->services);
+        $this->language->setServiceLocator($this->services);
     }
 
     protected function overrideConfig(array $config = array())

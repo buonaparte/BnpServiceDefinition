@@ -6,7 +6,6 @@ use BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface;
 use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Stdlib\ArrayUtils;
 
 class ConfigFunctionProvider implements
     FunctionProviderInterface,

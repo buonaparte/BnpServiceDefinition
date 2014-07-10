@@ -109,6 +109,24 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testCanGenerateForDefinitionsWithSameCanonicalNameAsImmutableFactoryAccessor()
+    {
+        $out = $this->generator->generate(
+            'SampleClassName',
+            new DefinitionRepository($definitions = array(
+                'ServiceLocator' => array(
+                    'class' => 'Zend\ServiceManager\ServiceManager'
+                )
+            ))
+        );
+
+        $this->assertInstanceOf('Zend\Code\Generator\FileGenerator', $out);
+        $this->assertCount(
+            $this->immutableGeneratedFactoryMethodsCount + count(array_keys($definitions)),
+            $out->getClass()->getMethods()
+        );
+    }
+
     public function testGeneratesComplexDefinitions()
     {
         $out = $this->generator->generate(

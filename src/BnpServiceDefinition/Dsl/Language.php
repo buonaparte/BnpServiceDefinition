@@ -7,15 +7,13 @@ use BnpServiceDefinition\Dsl\Extension\Feature\FunctionProviderInterface;
 use BnpServiceDefinition\Options\DefinitionOptions;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
-use Zend\ServiceManager\Exception\ServiceNotCreatedException;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\ServiceManagerAwareInterface;
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\InitializableInterface;
 
 class Language extends ExpressionLanguage implements
-    ServiceManagerAwareInterface,
+    ServiceLocatorAwareInterface,
     InitializableInterface
 {
     /**
@@ -72,16 +70,6 @@ class Language extends ExpressionLanguage implements
     }
 
     /**
-     * Set service manager
-     *
-     * @param ServiceManager $serviceManager
-     */
-    public function setServiceManager(ServiceManager $serviceManager)
-    {
-        $this->services = $serviceManager;
-    }
-
-    /**
      * Init an object
      *
      * @return void
@@ -100,7 +88,7 @@ class Language extends ExpressionLanguage implements
 
                 try {
                     $extension = $this->services->get($extension);
-                } catch (ServiceNotCreatedException $e) {
+                } catch (\Exception $e) {
                     continue;
                 }
             }
@@ -133,5 +121,25 @@ class Language extends ExpressionLanguage implements
         }
 
         $this->initialized = true;
+    }
+
+    /**
+     * Set service locator
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     */
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->services = $serviceLocator;
+    }
+
+    /**
+     * Get service locator
+     *
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        return $this->services;
     }
 }
