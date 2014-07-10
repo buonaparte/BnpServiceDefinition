@@ -78,7 +78,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('a_file.php', $out->getFilename());
     }
 
-    public function testCanGenerateForDefinitionsWithSameCanonicalName()
+    public function testCanGenerateForDefinitionsWithSameCanonicalNameWithoutCollision()
     {
         $out = $this->generator->generate(
             'SampleClassName',
@@ -88,6 +88,9 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
                 ),
                 'A\\Service' => array(
                     'class' => '\ArrayObject'
+                ),
+                'ServiceLocator' => array(
+                    'class' => '\stdClass'
                 )
             ))
         );
@@ -104,27 +107,10 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertContains("get$nameCanonical", array_map($getMethodName, $out->getClass()->getMethods()));
-        for ($i=1; $i<count(array_keys($definitions)); $i++) {
+        $this->assertContains('getServiceLocator1', array_map($getMethodName, $out->getClass()->getMethods()));
+        for ($i=1; $i<count(array_keys($definitions)) - 1; $i++) {
             $this->assertContains("get$nameCanonical$i", array_map($getMethodName, $out->getClass()->getMethods()));
         }
-    }
-
-    public function testCanGenerateForDefinitionsWithSameCanonicalNameAsImmutableFactoryAccessor()
-    {
-        $out = $this->generator->generate(
-            'SampleClassName',
-            new DefinitionRepository($definitions = array(
-                'ServiceLocator' => array(
-                    'class' => 'Zend\ServiceManager\ServiceManager'
-                )
-            ))
-        );
-
-        $this->assertInstanceOf('Zend\Code\Generator\FileGenerator', $out);
-        $this->assertCount(
-            $this->immutableGeneratedFactoryMethodsCount + count(array_keys($definitions)),
-            $out->getClass()->getMethods()
-        );
     }
 
     public function testGeneratesComplexDefinitions()

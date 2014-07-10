@@ -236,8 +236,7 @@ class Generator
         $definitionName = 'get' . ucfirst($this->getDefinitionCanonicalName($definitionName));
         $i = 0;
         while (array_key_exists($definitionName, $this->definitionFactoryMethods)
-            ||
-            in_array($definitionName, $this->immutableAccessorMethods)
+            || in_array($definitionName, $this->immutableAccessorMethods)
         ) {
             $definitionName .= ++$i;
         }

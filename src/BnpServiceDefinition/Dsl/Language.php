@@ -82,7 +82,7 @@ class Language extends ExpressionLanguage implements
 
         foreach ($this->extensions as $extension) {
             if (is_string($extension)) {
-                if (null === $this->services || ! $this->services->has($extension)) {
+                if (null === $this->getServiceLocator() || ! $this->services->has($extension)) {
                     continue;
                 }
 
