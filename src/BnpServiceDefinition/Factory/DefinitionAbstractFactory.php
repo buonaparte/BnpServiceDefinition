@@ -66,13 +66,12 @@ class DefinitionAbstractFactory implements
 
     protected function getGeneratedFactory()
     {
-        if (null === $this->definitionRepository) {
-            return null;
-        }
-
         $dir = $this->getOptions($this->getServiceLocator())->getDumpDirectory();
-        if (! is_dir($dir) || ! is_readable($dir) || ! is_writable($dir)) {
-            throw new \RuntimeException();
+        if (empty($dir) || ! is_dir($dir) || ! is_readable($dir) || ! is_writable($dir)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '"%s" is not a valid directory, Dump directory must be both readable and writable',
+                $dir
+            ));
         }
 
         $factory = new \stdClass();

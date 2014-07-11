@@ -652,4 +652,41 @@ class DefinitionAbstractFactoryTest extends \PHPUnit_Framework_TestCase
             $this->dumpDirectory.'/BnpGeneratedAbstractFactory_acontainer_'.$scopedDefinitionsRepo->getChecksum().'.php'
         );
     }
+
+    public function invalidDumpDirectoryProvider()
+    {
+        return array(
+            array('directory.does.not.exist'),
+            array('/'),
+            array('')
+        );
+    }
+
+    /**
+     * @param $dir
+     * @dataProvider invalidDumpDirectoryProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testWillThrowExceptionWhenInvalidOrWithoutPermissionsDumpDirectoryProvided($dir)
+    {
+        $this->options->setDumpDirectory($dir);
+        $this->options->setDumpFactories(true);
+        $this->services->setService('BnpServiceDefinition\Options\DefinitionOptions', $this->options);
+
+        $this->overrideConfig(array(
+            'services' => array(
+                'Config' => array(
+                    'service_manager' => array(
+                        'definitions' => array(
+                            'foo' => array(
+                                'class' => '\stdClass'
+                            )
+                        )
+                    )
+                )
+            )
+        ));
+
+        $this->factory->init();
+    }
 }
