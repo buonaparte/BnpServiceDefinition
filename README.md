@@ -3,6 +3,8 @@ BnpServiceDefinition
 
 [![Build Status](https://travis-ci.org/buonaparte/BnpServiceDefinition.svg?branch=master)](https://travis-ci.org/buonaparte/BnpServiceDefinition)
 [![Coverage Status](https://img.shields.io/coveralls/buonaparte/BnpServiceDefinition.svg)](https://coveralls.io/r/buonaparte/BnpServiceDefinition?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/buonaparte/bnp-service-definition/v/stable.svg)](https://packagist.org/packages/buonaparte/bnp-service-definition)
+[![Latest Unstable Version](https://poser.pugx.org/buonaparte/bnp-service-definition/v/unstable.svg)](https://packagist.org/packages/buonaparte/bnp-service-definition)
 
 This module allows you define ServiceManager factories through simple, yet verbose configuration.
 
@@ -14,7 +16,7 @@ Installation
 
     ``` json
     "require": {
-        "buonaparte/bnp-service-definition": "dev-master"
+        "buonaparte/bnp-service-definition": "1.*"
     }
     ```
 
