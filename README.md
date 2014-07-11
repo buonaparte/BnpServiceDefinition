@@ -56,14 +56,34 @@ return [
     'service_manager' => [
         // ...
         'definitions' => [
-            'salary_computer_service' => [
-                'class' => 'Me\\Service\\SalaryComputerService',
-                'arguments' => ['default_computer_strategy'],
+            'MovieLister' => [
+                'class' => 'Me\Service\MovieLister',
+                'arguments' => [
+                    ['type' => 'service', 'value' => 'MovieFinder']
+                ],
                 'method_calls' => [
-                    [
-                        'name' => 'setMonthlyBudget',
-                        'parameters' => [1039.00]
-                    ]
+                    ['name' => 'setListingBehaviour', 'parameters' => ['default']]
+                ]
+            ],
+            'MovieFinder' => [
+                'class' => 'Me\Service\MovieFinder',
+                'arguments' => [
+                    ['type' => 'service', 'value' => 'MoviesTable']
+                ]
+            ],
+            'MoviesTable' => [
+                'class' => 'Zend\Db\TableGateway\TableGateway',
+                'arguments' => [
+                    'movies',
+                    ['type' => 'service', 'value' => 'Zend\Db\Adapter'],
+                    null,
+                    ['type' => 'service', 'value' => 'MoviesResultSet']
+                ]
+            ],
+            'MoviesResultSet' => [
+                'class' => 'Zend\Db\ResultSet\HydratingResultSet',
+                'arguments' => [
+                    'Zend\Stdlib\Hydrator\ClassMethods'
                 ]
             ]
         ]
