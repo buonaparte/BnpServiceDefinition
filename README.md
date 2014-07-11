@@ -212,7 +212,7 @@ argument will be a value pulled from the config.
 Using definitions from PluginManager scopes
 -------------------------------------------
 
-You can add `definition` support for each Plugin Manager, by specifying it in `definition-aware-containers` under
+You can add `definitions` support for each Plugin Manager, by specifying it in `definition-aware-containers` under
 `bnp-service-definition` configuration key, Ex:
 
 ```php
