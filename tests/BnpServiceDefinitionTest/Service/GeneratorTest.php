@@ -12,7 +12,7 @@ use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\Code\Generator\MethodGenerator;
 use Zend\ServiceManager\ServiceManager;
 
-class GeneratorTest extends \PHPUnit_Framework_TestCase
+class GeneratorTest extends DefinitionFactoryAbstractTest
 {
     /**
      * @var DefinitionOptions
@@ -40,6 +40,11 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     protected $generator;
 
     /**
+     * @var string
+     */
+    protected $dumpDirectory;
+
+    /**
      * @var int
      */
     protected $immutableGeneratedFactoryMethodsCount;
@@ -58,6 +63,25 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $boot = $this->generator->generate('SampleClassName', new DefinitionRepository(array()));
         $this->immutableGeneratedFactoryMethodsCount = count($boot->getClass()->getMethods());
+
+        $path = __DIR__ . '/__dump_dir';
+        if (! is_dir($path) || ! is_readable($path) || ! is_writable($path)) {
+            $this->fail('Must have a valid, both readable and writable directory');
+        }
+
+        $this->dumpDirectory = $path;
+    }
+
+    protected function tearDown()
+    {
+        $this->clearDumpDirectory();
+    }
+
+    protected function clearDumpDirectory()
+    {
+        foreach (glob($this->dumpDirectory . '/*.php') as $file) {
+            unlink($file);
+        }
     }
 
     public function testCanGenerateEmptyDefinitions()
@@ -113,12 +137,12 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testGeneratesComplexDefinitions()
+    protected function getComplexValidDefinitionForName($name, $className)
     {
-        $out = $this->generator->generate(
-            'SomeClassName',
+        return $this->generator->generate(
+            $className,
             new DefinitionRepository(array(
-                'a_service' => array(
+                $name => array(
                     'class' => '\ArrayObject',
                     'arguments' => array(
                         array('type' => 'value', 'value' => array())
@@ -143,15 +167,69 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
                 )
             ))
         );
+    }
+
+    public function testGeneratesComplexDefinitions()
+    {
+        $out = $this->getComplexValidDefinitionForName('a_service', 'SomeClass');
 
         $this->assertInstanceOf('Zend\Code\Generator\FileGenerator', $out);
         $this->assertCount($this->immutableGeneratedFactoryMethodsCount + 1, $out->getClass()->getMethods());
     }
 
+    protected function getUniqueDumpedFactoryClassName()
+    {
+        return 'DumpedAbstractFactoryClassName' . hash('sha1', microtime());
+    }
+
+    public function testGeneratedCodeDoesNotContainSyntaxErrors()
+    {
+        $class = $this->getUniqueDumpedFactoryClassName();
+        $this->getComplexValidDefinitionForName('a_service', $class)
+            ->setFilename($filename = "{$this->dumpDirectory}/$class.php")
+            ->write();
+
+        if (function_exists('exec')) {
+            $self = $this;
+            set_error_handler(
+                function ($level, $error) use ($self) {
+                    $self->fail(sprintf('An error occurred (# %s) with message "%s"', $level, $error));
+                }
+            );
+
+            $out = exec(sprintf('%s -l %s', PHP_BIN_PATH, $filename));
+            if (strstr(strtolower($out), 'parse error')) {
+                $this->fail(sprintf('Generated file contains syntax errors: "%s"', $out));
+            }
+
+            restore_error_handler();
+        } else {
+            $this->markTestSkipped('Exec is not allowed on your server');
+        }
+    }
+
+    public function testGeneratedCodeContainsAnAbstractFactory()
+    {
+        $out = $this->generator->generate(
+            $class = $this->getUniqueDumpedFactoryClassName(),
+            new DefinitionRepository(array())
+        );
+
+        $out->setFilename($filename = "{$this->dumpDirectory}/$class.php")
+            ->write();
+
+        require $filename;
+
+        $this->assertTrue(class_exists($class));
+
+        $factory = new $class();
+        $this->assertInstanceOf('Zend\ServiceManager\AbstractFactoryInterface', $factory);
+    }
+
     public function testGeneratorSkipsNonTerminalDefinitions()
     {
         $out = $this->generator->generate(
-            'SampleClassName',
+            'SomeClass',
             new DefinitionRepository($definitions = array(
                 'first' => array(
                     'class' => '\stdClass'
@@ -168,5 +246,23 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Zend\Code\Generator\FileGenerator', $out);
         $this->assertCount($this->immutableGeneratedFactoryMethodsCount + 2, $out->getClass()->getMethods());
+    }
+
+    protected function createDefinitionWithName($name, DefinitionRepository $repository)
+    {
+        $out = $this->generator->generate(
+            $class = "Evaluate_{$this->getUniqueDumpedFactoryClassName()}",
+            $repository
+        );
+
+        $out->setFilename($filename = "{$this->dumpDirectory}/$class.php")
+            ->write();
+
+        require $filename;
+
+        $factory = new $class();
+        $this->services->addAbstractFactory($factory);
+
+        return $this->services->get($name);
     }
 }

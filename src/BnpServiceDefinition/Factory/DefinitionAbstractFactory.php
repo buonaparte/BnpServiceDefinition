@@ -6,6 +6,7 @@ use BnpServiceDefinition\Definition\DefinitionRepository;
 use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\Service\Evaluator;
 use BnpServiceDefinition\Service\Generator;
+use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -80,7 +81,7 @@ class DefinitionAbstractFactory implements
                 '/%s_%s.php',
                 'BnpGeneratedAbstractFactory',
                 null !== $this->scopeName
-                ? sprintf('%s_%s', $this->scopeName, $this->definitionRepository->getChecksum())
+                ? sprintf('%s_%s', $this->getScopeCanonicalName(), $this->definitionRepository->getChecksum())
                 : $this->definitionRepository->getChecksum()
             );
         $factory->class = sprintf(
@@ -108,7 +109,7 @@ class DefinitionAbstractFactory implements
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if ($this->generatedFactoryAttached) {
+        if ($this->generatedFactoryAttached || null === $this->definitionRepository) {
             return false;
         }
 
@@ -238,12 +239,12 @@ class DefinitionAbstractFactory implements
 
         foreach ($options->getDefinitionAwareContainers() as $container => $containerConfig) {
             if (! $services->has($container)) {
-                throw new \InvalidArgumentException(sprintf('Inner service locator %s not found', $container));
+                throw new Exception\InvalidArgumentException(sprintf('Inner service locator %s not found', $container));
             }
 
             /** @var $serviceManager ServiceManager */
             if (! ($serviceManager = $services->get($container)) instanceof ServiceManager) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new Exception\RuntimeException(sprintf(
                     'Inner service locator %s must be an instance of ServiceManager',
                     $container
                 ));

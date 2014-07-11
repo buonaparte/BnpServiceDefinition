@@ -1,5 +1,7 @@
 <?php
 
+define('PHP_BIN_PATH', 'php');
+
 chdir(__DIR__);
 
 $loader = null;

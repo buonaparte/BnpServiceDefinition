@@ -366,7 +366,7 @@ TEMPLATE;
 <<<TEMPLATE
 set_error_handler(
     function (\$level, \$message) use (\$definitionName) {
-        throw new Exception\RuntimeException(sprintf(
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
             'A %d level error occurred (message: "%s") while creating %s service from compiled Abstract Factory',
             \$level,
             \$message,

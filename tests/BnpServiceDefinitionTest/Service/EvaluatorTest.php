@@ -9,10 +9,11 @@ use BnpServiceDefinition\Dsl\Language;
 use BnpServiceDefinition\Exception\RuntimeException;
 use BnpServiceDefinition\Service\Evaluator;
 use BnpServiceDefinition\Service\ParameterResolver;
+use BnpServiceDefinitionTest\Factory\DefinitionAbstractFactoryTest;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceManager;
 
-class EvaluatorTest extends \PHPUnit_Framework_TestCase
+class EvaluatorTest extends DefinitionFactoryAbstractTest
 {
     /**
      * @var \BnpServiceDefinition\Service\ParameterResolver
@@ -74,150 +75,8 @@ class EvaluatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $exceptionsThrown);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testEvaluatorChecksClassForClassExistence()
+    protected function createDefinitionWithName($name, DefinitionRepository $repository)
     {
-        $repo = new DefinitionRepository(array(
-            'a_service' => array(
-                'class' => 'ClassDoesNotExists'
-            )
-        ));
-
-        $this->evaluator->evaluate('a_service', $repo);
-    }
-
-    public function testEvaluatorSetsCustomErrorHandlerForInstantiatingAService()
-    {
-        $repo = new DefinitionRepository(array(
-            'array' => array(
-                'class' => '\ArrayObject',
-                'arguments' => array(
-                    array('type' => 'value', 'value' => array(1, 2, 3))
-                )
-            ),
-            'evaluator_service' => array(
-                'class' => 'BnpServiceDefinition\Service\Evaluator',
-                'arguments' => array(
-                    12,
-                    5.4
-                )
-            )
-        ));
-
-        /** @var $arrayService \ArrayObject */
-        $arrayService = $this->evaluator->evaluate('array', $repo);
-        $this->assertEquals(array(1, 2, 3), $arrayService->getArrayCopy());
-
-        $this->setExpectedException('BnpServiceDefinition\Exception\RuntimeException');
-        $this->evaluator->evaluate('evaluator_service', $repo);
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testWillThrowExceptionOnNonStringMethodCallNameProvided()
-    {
-        $repo = new DefinitionRepository(array(
-            'array' => array(
-                'class' => '\ArrayObject',
-                'calls' => array(
-                    array(
-                        'name' => array('type' => 'value', 'value' => array('InvalidMethodCall'))
-                    )
-                )
-            ),
-        ));
-
-        $this->evaluator->evaluate('array', $repo);
-    }
-
-    public function testEvaluatorChecksServiceMethodExistence()
-    {
-        $repo = new DefinitionRepository(array(
-            'array' => array(
-                'class' => '\ArrayObject',
-                'calls' => array(
-                    array('exchangeArray', array(array('type' => 'value', 'value' => array('elt'))))
-                )
-            ),
-            'another_array' => array(
-                'parent' => 'array',
-                'calls' => array(
-                    'methodDoesNotExist'
-                )
-            )
-        ));
-
-        /** @var $arrayService \ArrayObject */
-        $arrayService = $this->evaluator->evaluate('array', $repo);
-        $this->assertEquals(array('elt'), $arrayService->getArrayCopy());
-
-        $this->setExpectedException('BnpServiceDefinition\Exception\RuntimeException');
-        $this->evaluator->evaluate('another_array', $repo);
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testEvaluatorSetsCustomErrorHandlerForMethodCalls()
-    {
-        $repo = new DefinitionRepository(array(
-            'provider' => array(
-                'class' => 'BnpServiceDefinition\Dsl\Extension\ConfigFunctionProvider',
-                'calls' => array(
-                    array('setServiceLocator', array(2.5))
-                )
-            ),
-        ));
-
-        $this->evaluator->evaluate('provider', $repo);
-    }
-
-    public function testEvaluatorSkipsMethodCallsWhichNotSatisfyConditions()
-    {
-        $repo = new DefinitionRepository(array(
-            'array' => array(
-                'class' => '\ArrayObject',
-                'arguments' => array(
-                    array('type' => 'value', 'value' => array(1, 2, 3))
-                ),
-                'calls' => array(
-                    array(
-                        'exchangeArray',
-                        array(array('type' => 'value', 'value' => array('elt'))),
-                        array(array('type' => 'value', 'value' => false))
-                    )
-                )
-            ),
-        ));
-
-        /** @var $arrayService \ArrayObject */
-        $arrayService = $this->evaluator->evaluate('array', $repo);
-        $this->assertEquals(array(1, 2, 3), $arrayService->getArrayCopy());
-    }
-
-    public function testEvaluatorInjectsServiceValueInContextAfterInstantiationForConditions()
-    {
-        $repo = new DefinitionRepository(array(
-            'array' => array(
-                'class' => '\ArrayObject',
-                'arguments' => array(
-                    array('type' => 'value', 'value' => array(1, 2, 3))
-                ),
-                'calls' => array(
-                    array(
-                        'name' => 'exchangeArray',
-                        'parameters' => array(array('type' => 'value', 'value' => array('elt'))),
-                        'conditions' => array(array('type' => 'dsl', 'value' => '3 == service.count()'))
-                    )
-                )
-            ),
-        ));
-
-        /** @var $arrayService \ArrayObject */
-        $arrayService = $this->evaluator->evaluate('array', $repo);
-        $this->assertEquals(array('elt'), $arrayService->getArrayCopy());
+        return $this->evaluator->evaluate($name, $repository);
     }
 }
