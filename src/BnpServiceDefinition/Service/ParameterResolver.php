@@ -71,9 +71,6 @@ class ParameterResolver extends AbstractPluginManager
                 ? ($first['__strong_order'] > $second['__strong_order'])
                 : ($first['order'] > $second['order'] ? 1 : -1);
         });
-        array_walk($parameters, function ($parameter) {
-            unset($parameter['__strong_order']);
-        });
 
         return array_map(array($this, 'resolveParameter'), $parameters);
     }
