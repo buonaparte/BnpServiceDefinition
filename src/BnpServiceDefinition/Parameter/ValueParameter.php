@@ -68,6 +68,9 @@ class ValueParameter implements ParameterInterface
             case 'bool':
             case 'boolean':
                 return $definition ? 'true' : 'false';
+
+            case 'NULL':
+                return 'null';
         }
 
         throw new Exception\InvalidArgumentException(sprintf(

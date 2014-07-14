@@ -25,6 +25,7 @@ class ValueParameterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("'\\\'quoted\\\''", $this->valueParameter->compile("'quoted'"));
         $this->assertEquals('true', $this->valueParameter->compile(true));
         $this->assertEquals('false', $this->valueParameter->compile(false));
+        $this->assertEquals('null', $this->valueParameter->compile(null));
     }
 
     public function testCompilesNestedArrays()
