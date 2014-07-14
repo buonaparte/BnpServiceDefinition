@@ -7,6 +7,7 @@ use BnpServiceDefinition\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\Exception as ServiceManagerException;
+use Zend\Stdlib\PriorityQueue;
 
 class ParameterResolver extends AbstractPluginManager
 {
@@ -59,12 +60,19 @@ class ParameterResolver extends AbstractPluginManager
 
     public function resolveParameters(array $parameters = array())
     {
+        $i = 0;
         foreach ($parameters as &$parameter) {
             $parameter = $this->resolveParameter($parameter, false);
+            $parameter['__strong_order'] = $i++;
         }
 
         usort($parameters, function ($first, $second) {
-            return $first['order'] == $second['order'] ? 0 : ($first['order'] > $second['order'] ? 1 : -1);
+            return $first['order'] == $second['order']
+                ? ($first['__strong_order'] > $second['__strong_order'])
+                : ($first['order'] > $second['order'] ? 1 : -1);
+        });
+        array_walk($parameters, function ($parameter) {
+            unset($parameter['__strong_order']);
         });
 
         return array_map(array($this, 'resolveParameter'), $parameters);

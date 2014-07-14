@@ -8,6 +8,12 @@ BnpServiceDefinition
 
 This module allows you define ServiceManager factories through simple, yet verbose configuration.
 
+Changelog
+---------
+
+### 1.0.3
+* `ParameterResolver` now takes correctly *order* into account (test coverage)
+
 Installation
 ------------
 
@@ -210,7 +216,7 @@ stuff as an `abstract` definition, and all concrete factories will specify it as
 ]
 ```
 
-Notice `order` key for parameters, this is optional and by default all parameters are given the order of `1`, however,
+Notice `order` key for parameters, this is optional and by default all parameters are given the order of `0`, however,
 at the compile time, all arguments are sorted in ascending order of this key value, `SettingsMapper`s first constructor
 argument will be a value pulled from the config.
 
@@ -497,7 +503,7 @@ class BnpGeneratedAbstractFactory_a81f0487f49ba10e22972a55497525bc implements \Z
             ));
         }
         $serviceReflection = new \ReflectionClass($serviceClassName);
-        $service = $serviceReflection->newInstanceArgs(array($this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("MoviesResultSet", false, null), null, $this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("Zend\\Db\\Adapter", false, null), "movies"));
+        $service = $serviceReflection->newInstanceArgs(array($this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("Zend\\Db\\Adapter", false, null), null, $this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("MoviesResultSet", false, null), "movies"));
 
         restore_error_handler();
 
@@ -540,7 +546,7 @@ class BnpGeneratedAbstractFactory_a81f0487f49ba10e22972a55497525bc implements \Z
             ));
         }
         $serviceReflection = new \ReflectionClass($serviceClassName);
-        $service = $serviceReflection->newInstanceArgs(array($this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("MovieEntityPrototype", false, null), $this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("ClassMethodsHydrator", false, null)));
+        $service = $serviceReflection->newInstanceArgs(array($this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("ClassMethodsHydrator", false, null), $this->services->get('BnpServiceDefinition\Dsl\Extension\ServiceFunctionProvider')->getService("MovieEntityPrototype", false, null)));
 
         restore_error_handler();
 

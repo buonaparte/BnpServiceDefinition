@@ -79,4 +79,9 @@ class EvaluatorTest extends DefinitionFactoryAbstractTest
     {
         return $this->evaluator->evaluate($name, $repository);
     }
+
+    protected function getServiceManager()
+    {
+        return $this->services;
+    }
 }

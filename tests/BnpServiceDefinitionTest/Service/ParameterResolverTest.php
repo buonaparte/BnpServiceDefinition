@@ -73,6 +73,64 @@ class ParameterResolverTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function parametersInOrderProvider()
+    {
+        return array(
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'a'),
+                    array('type' => 'value', 'value' => 'b')
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'a'),
+                    array('type' => 'value', 'value' => 'b', 'order' => 1)
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'a', 'order' => -1),
+                    array('type' => 'value', 'value' => 'b')
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'a', 'order' => 1),
+                    array('type' => 'value', 'value' => 'b', 'order' => 2)
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'b', 'order' => 1),
+                    array('type' => 'value', 'value' => 'a')
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'b'),
+                    array('type' => 'value', 'value' => 'a', 'order' => -1)
+                )
+            ),
+            array(
+                array(
+                    array('type' => 'value', 'value' => 'b', 'order' => -1),
+                    array('type' => 'value', 'value' => 'a', 'order' => -2)
+                )
+            )
+        );
+    }
+
+    /**
+     * @param array $parameters
+     * @dataProvider parametersInOrderProvider
+     */
+    public function testResolveParametersTakesOrderIntoAccount(array $parameters)
+    {
+        $parameters = $this->resolver->resolveParameters($parameters);
+        $this->assertEquals(array("'a'", "'b'"), $parameters);
+    }
+
     /**
      * @param $invalidParameter mixed
      * @dataProvider invalidParameterProvider

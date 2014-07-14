@@ -10,6 +10,8 @@ use BnpServiceDefinition\Options\DefinitionOptions;
 use BnpServiceDefinition\Service\Generator;
 use BnpServiceDefinition\Service\ParameterResolver;
 use Zend\Code\Generator\MethodGenerator;
+use Zend\ServiceManager\Config;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceManager;
 
 class GeneratorTest extends DefinitionFactoryAbstractTest
@@ -56,8 +58,18 @@ class GeneratorTest extends DefinitionFactoryAbstractTest
         $this->services = new ServiceManager();
 
         $this->language = new Language();
-        $this->language->registerExtension(new ConfigFunctionProvider());
-        $this->language->registerExtension(new ServiceFunctionProvider());
+        $extensions = array(
+            ConfigFunctionProvider::SERVICE_KEY => new ConfigFunctionProvider(),
+            ServiceFunctionProvider::SERVICE_KEY => new ServiceFunctionProvider()
+        );
+        foreach ($extensions as $name => $extension) {
+            if ($extension instanceof ServiceLocatorAwareInterface) {
+                $extension->setServiceLocator($this->services);
+            }
+
+            $this->language->registerExtension($extension);
+            $this->services->setService($name, $extension);
+        }
 
         $this->generator = new Generator($this->language, $this->parameterResolver, $this->options);
 
@@ -262,7 +274,14 @@ class GeneratorTest extends DefinitionFactoryAbstractTest
 
         $factory = new $class();
         $this->services->addAbstractFactory($factory);
+        /** @var $factory ServiceLocatorAwareInterface */
+        $factory->setServiceLocator($this->services);
 
         return $this->services->get($name);
+    }
+
+    protected function getServiceManager()
+    {
+        return $this->services;
     }
 }
