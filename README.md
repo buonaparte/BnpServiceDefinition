@@ -11,7 +11,7 @@ This module allows you define ServiceManager factories through simple, yet verbo
 Changelog
 ---------
 
-### 1.0.3
+### 1.0.2
 * `ParameterResolver` now takes correctly *order* into account (test coverage)
 
 Installation
