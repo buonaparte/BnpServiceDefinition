@@ -260,6 +260,156 @@ class GeneratorTest extends DefinitionFactoryAbstractTest
         $this->assertCount($this->immutableGeneratedFactoryMethodsCount + 2, $out->getClass()->getMethods());
     }
 
+    public function testGeneratedFactoryMethodsBodies()
+    {
+        $out = $this->generator->generate(
+            'SomeClass',
+            new DefinitionRepository($definitions = array(
+                'first' => array(
+                    'class' => '\ArrayObject',
+                    'calls' => array(
+                        array('append', array('value'))
+                    )
+                ),
+                'second' => array(
+                    'class' => '\ArrayObject',
+                    'calls' => array(
+                        array('append', array('value'), array(true))
+                    )
+                )
+            ))
+        );
+
+        $first = $out->getClass()->getMethod('getFirst');
+        $second = $out->getClass()->getMethod('getSecond');
+
+        $this->assertInstanceOf('Zend\Code\Generator\MethodGenerator', $first);
+        $this->assertInstanceOf('Zend\Code\Generator\MethodGenerator', $second);
+
+        $firstBody =
+            <<<TEMPLATE
+set_error_handler(
+    function (\$level, \$message) use (\$definitionName) {
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+            'A %d level error occurred (message: "%s") while creating %s service from compiled Abstract Factory',
+            \$level,
+            \$message,
+            \$definitionName
+        ));
+    }
+);
+
+\$serviceClassName = "\\\ArrayObject";
+if (! is_string(\$serviceClassName)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        '%s definition class was not resolved to a string',
+        \$definitionName
+    ));
+}
+if (! class_exists(\$serviceClassName, true)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        '%s definition resolved to the class %s, which does no exit',
+        \$definitionName,
+        \$serviceClassName
+    ));
+}
+\$serviceReflection = new \ReflectionClass(\$serviceClassName);
+\$service = \$serviceReflection->newInstanceArgs(array());
+
+
+\$serviceMethod = "append";
+if (! is_string(\$serviceMethod)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        'A method call can only be a string, %s provided, as %d method call for the %s service definition',
+        gettype(\$serviceMethod),
+        0,
+        \$definitionName
+    ));
+} elseif (! method_exists(\$service, \$serviceMethod)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
+        get_class(\$service),
+        \$serviceMethod,
+        0,
+        \$definitionName
+    ));
+}
+
+call_user_func_array(
+    array(\$service, \$serviceMethod),
+    array("value")
+);
+
+restore_error_handler();
+
+return \$service;
+TEMPLATE;
+
+        $secondBody =
+<<<TEMPLATE
+set_error_handler(
+    function (\$level, \$message) use (\$definitionName) {
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+            'A %d level error occurred (message: "%s") while creating %s service from compiled Abstract Factory',
+            \$level,
+            \$message,
+            \$definitionName
+        ));
+    }
+);
+
+\$serviceClassName = "\\\ArrayObject";
+if (! is_string(\$serviceClassName)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        '%s definition class was not resolved to a string',
+        \$definitionName
+    ));
+}
+if (! class_exists(\$serviceClassName, true)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        '%s definition resolved to the class %s, which does no exit',
+        \$definitionName,
+        \$serviceClassName
+    ));
+}
+\$serviceReflection = new \ReflectionClass(\$serviceClassName);
+\$service = \$serviceReflection->newInstanceArgs(array());
+
+
+if (true) {
+    \$serviceMethod = "append";
+    if (! is_string(\$serviceMethod)) {
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+            'A method call can only be a string, %s provided, as %d method call for the %s service definition',
+            gettype(\$serviceMethod),
+            0,
+            \$definitionName
+        ));
+    } elseif (! method_exists(\$service, \$serviceMethod)) {
+        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+            'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
+            get_class(\$service),
+            \$serviceMethod,
+            0,
+            \$definitionName
+        ));
+    }
+    
+    call_user_func_array(
+        array(\$service, \$serviceMethod),
+        array("value")
+    );
+}
+
+restore_error_handler();
+
+return \$service;
+TEMPLATE;
+
+        $this->assertEquals($firstBody, $first->getBody());
+        $this->assertEquals($secondBody, $second->getBody());
+    }
+
     protected function createDefinitionWithName($name, DefinitionRepository $repository)
     {
         $out = $this->generator->generate(

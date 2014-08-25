@@ -18,6 +18,10 @@ use Zend\Code\Generator\PropertyGenerator;
 
 class Generator
 {
+    const INDENTATION = '    ';
+
+    const LINE_FEED = "\n";
+
     /**
      * @var DefinitionOptions
      */
@@ -326,7 +330,7 @@ TEMPLATE;
             $canonicalName = $name;
             $this->addDefinitionFactoryMethod($canonicalName, $definition);
 
-            $cases .= "\n" . $this->getCaseStatementBody($name, $canonicalName);
+            $cases .= self::LINE_FEED . $this->getCaseStatementBody($name, $canonicalName);
         }
 
         return
@@ -353,11 +357,11 @@ TEMPLATE;
         $methodCalls = '';
         foreach (array_values($definition->getMethodCalls()) as $i => $methodCall) {
             /** @var $methodCall MethodCallDefinition */
-            $methodCalls .= "\n" . $this->getFactoryMethodCallBody($methodCall, $i);
+            $methodCalls .= self::LINE_FEED . $this->getFactoryMethodCallBody($methodCall, $i);
         }
 
         if (! empty($methodCalls)) {
-            $methodCalls = "\n$methodCalls\n";
+            $methodCalls = self::LINE_FEED . $methodCalls . self::LINE_FEED;
         }
 
         $arguments = implode(', ', $this->compileParameters($definition->getArguments()));
@@ -402,7 +406,7 @@ TEMPLATE;
     {
         $context = array('service');
 
-        $condition = 'true';
+        $condition = null;
         if (null !== $method->getConditions()) {
             $conditions = implode(
                 ' and ',
@@ -413,32 +417,53 @@ TEMPLATE;
 
         $params = implode(', ', $this->compileParameters($method->getParameters(), $context));
 
-        return
+        $body =
 <<<TEMPLATE
-if ($condition) {
-    \$serviceMethod = {$this->compileParameter($method->getName(), $context)};
-    if (! is_string(\$serviceMethod)) {
-        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
-            'A method call can only be a string, %s provided, as %d method call for the %s service definition',
-            gettype(\$serviceMethod),
-            $methodIndex,
-            \$definitionName
-        ));
-    } elseif (! method_exists(\$service, \$serviceMethod)) {
-        throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
-            'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
-            get_class(\$service),
-            \$serviceMethod,
-            $methodIndex,
-            \$definitionName
-        ));
-    }
-
-    call_user_func_array(
-        array(\$service, \$serviceMethod),
-        array({$params})
-    );
+\$serviceMethod = {$this->compileParameter($method->getName(), $context)};
+if (! is_string(\$serviceMethod)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        'A method call can only be a string, %s provided, as %d method call for the %s service definition',
+        gettype(\$serviceMethod),
+        $methodIndex,
+        \$definitionName
+    ));
+} elseif (! method_exists(\$service, \$serviceMethod)) {
+    throw new \BnpServiceDefinition\Exception\RuntimeException(sprintf(
+        'Requested method "%s::%s" (index %d) does not exists or is not visible for %s service definition',
+        get_class(\$service),
+        \$serviceMethod,
+        $methodIndex,
+        \$definitionName
+    ));
 }
+
+call_user_func_array(
+    array(\$service, \$serviceMethod),
+    array({$params})
+);
 TEMPLATE;
+
+        if (null !== $condition) {
+            $indentation = self::INDENTATION;
+
+            $body = implode(
+                self::LINE_FEED,
+                array_map(
+                    function ($line) use ($indentation) {
+                        return $indentation . $line;
+                    },
+                    explode(self::LINE_FEED, $body)
+                )
+            );
+
+            $body =
+<<<BODY
+if ($condition) {
+$body
+}
+BODY;
+        }
+
+        return $body;
     }
 }
